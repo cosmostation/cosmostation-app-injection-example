@@ -1,4 +1,4 @@
-import chains, { Chain } from "../constants/chains";
+import chains, { IChain } from "../constants/chains";
 import {
   createContext,
   useCallback,
@@ -9,14 +9,14 @@ import {
 
 import { StargateClient } from "@cosmjs/stargate";
 
-interface Client {
-  chain: Chain;
+interface IClient {
+  chain: IChain;
   client: StargateClient;
 }
 
 interface IClientProvider {
-  clients: Client[];
-  getClient: (chainId: string) => Client | undefined;
+  clients: IClient[];
+  getClient: (chainId: string) => IClient | undefined;
 }
 
 export const ClientContext = createContext<IClientProvider>({
@@ -27,7 +27,7 @@ export const ClientContext = createContext<IClientProvider>({
 export const ClientProvider: React.FC<{ children: JSX.Element }> = ({
   children,
 }) => {
-  const [clients, setClients] = useState<Client[]>([]);
+  const [clients, setClients] = useState<IClient[]>([]);
 
   useEffect(() => {
     (async () => {

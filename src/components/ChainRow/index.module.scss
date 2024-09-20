@@ -1,0 +1,49 @@
+.container {
+  background-color: rgb(var(--base-02));
+  border: solid 1px rgb(var(--base-05));
+  border-radius: 5px;
+  padding: 10px 15px;
+
+  & + & {
+    margin-top: 20px;
+  }
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background-color: rgb(var(--base-03));
+  border-radius: 5px;
+  padding: 16px;
+}
+
+.symbol {
+  color: rgb(var(--blue-01));
+}
+
+.donateWith {
+  font-weight: bold;
+
+  & > i {
+    margin: 0 5px;
+
+    color: rgb(var(--base-06));
+    font-weight: normal;
+  }
+
+  & > span {
+    text-transform: capitalize;
+  }
+}
+
+.label {
+  margin: 10px 0 5px;
+  font-size: 12px;
+}
+
+.amount {
+  margin: 0 5px;
+  color: rgb(var(--blue-01));
+}

@@ -1,4 +1,4 @@
-interface Cosmostation {
+interface ICosmostation {
   cosmos: {
     request: <T>(message) => Promise<T>;
     on: (eventName: string, eventHandler: (event?: unknown) => void) => unknown;
@@ -6,7 +6,7 @@ interface Cosmostation {
   };
 }
 
-interface CosmosRequestAccount {
+interface ICosmosRequestAccount {
   address: string;
   isEthermint: boolean;
   isKeystone: boolean;
