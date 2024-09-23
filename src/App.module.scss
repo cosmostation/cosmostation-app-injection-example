@@ -9,4 +9,12 @@
 
 .body {
   margin-top: 20px;
+
+  @media (min-width: 650px) {
+    display: flex;
+    justify-content: center;
+    column-gap: 20px;
+
+    margin-top: 30px;
+  }
 }

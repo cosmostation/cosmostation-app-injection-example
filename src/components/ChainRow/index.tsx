@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Coin } from "@cosmjs/stargate";
+import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
 import { IChain } from "../../constants/chains";
 import styles from "./index.module.scss";
 import useCosmJS from "../../hooks/useCosmJS";
@@ -12,42 +12,98 @@ interface IChainRowProps {
 
 interface IAccount extends IChain {
   address: string;
-  balance: Coin | null;
 }
 
 const ChainRow: React.FC<IChainRowProps> = ({ chain }) => {
   const { getAccount } = useCosmostation();
-  const { getBalance } = useCosmJS();
+  const { getBalance, sendTokens } = useCosmJS();
 
   const [account, setAccount] = useState<IAccount | null>(null);
+  const [balance, setBalance] = useState<Coin | null>(null);
+
   const [isLoading, setIsLoading] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [txHash, setTxHash] = useState("");
+  const [txError, setTxError] = useState("");
+
+  const updateBalance = useCallback(
+    async (address: string) => {
+      try {
+        const balance = await getBalance(chain.chainId, address, chain.denom);
+
+        setBalance(balance);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [chain, getBalance]
+  );
 
   const fetchAccounts = useCallback(async () => {
     try {
       const account = await getAccount(chain.chainId);
-      const balance = await getBalance(
-        chain.chainId,
-        account.address,
-        chain.denom
-      );
+      await updateBalance(account.address);
 
       setAccount({
         ...chain,
         address: account.address,
-        balance,
       });
     } finally {
       setIsLoading(false);
     }
-  }, [chain, getAccount, getBalance, setIsLoading]);
+  }, [chain, getAccount, setIsLoading, updateBalance]);
 
   useEffect(() => {
     fetchAccounts();
   }, [fetchAccounts]);
 
-  const balance = useMemo(() => {
-    return Number(account?.balance?.amount) / 10 ** (account?.decimals || 0);
-  }, [account]);
+  const _balance = useMemo(() => {
+    if (isNaN(Number(balance?.amount))) {
+      return 0;
+    }
+
+    return Number(balance?.amount) / 10 ** (account?.decimals || 0);
+  }, [account, balance]);
+
+  const donate = useCallback(async () => {
+    if (!account) {
+      alert("Fail to Donate");
+      return;
+    }
+
+    if (isProcessing) {
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+
+      setTxHash("");
+      setTxError("");
+
+      const response = await sendTokens(
+        chain.chainId,
+        account.address,
+        account.cosmostation,
+        [{ denom: account.denom, amount: "1" }],
+        "auto",
+        "Donate to Cosmostation"
+      );
+
+      if (response) {
+        setTxHash(response.transactionHash);
+
+        if (Number(response.code) !== 0) {
+          setTxError(`Fail: ${response.code}`);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsProcessing(false);
+      updateBalance(account.address);
+    }
+  }, [chain, account, isProcessing, sendTokens, updateBalance]);
 
   return (
     <div className={styles.container}>
@@ -70,9 +126,29 @@ const ChainRow: React.FC<IChainRowProps> = ({ chain }) => {
           <div className={styles.label}>
             You have
             <span className={styles.amount}>
-              {balance} {account?.symbol.toUpperCase()}
+              {_balance} {account?.symbol.toUpperCase()}
             </span>
             in your balance
+          </div>
+          {!!txHash && (
+            <div>
+              <a
+                href={`https://www.mintscan.io/${chain.network}/tx/${txHash}`}
+                target="_blank"
+                className={styles.txHash}
+              >
+                {txHash.slice(0, 12)}...{txHash.slice(-12)}
+              </a>
+            </div>
+          )}
+          {!!txError && <div className={styles.txError}>{txHash}</div>}
+          <div
+            className={
+              isProcessing || _balance <= 0 ? styles.disabled : styles.submit
+            }
+            onClick={donate}
+          >
+            {isProcessing ? "Sending..." : "Donate"}
           </div>
         </>
       )}

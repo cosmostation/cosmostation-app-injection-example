@@ -14,3 +14,17 @@ interface ICosmosRequestAccount {
   name: string;
   publicKey: Uint8Array;
 }
+
+interface ICosmosSignDirectResponse {
+  pub_key: {
+    type: string;
+    value: string;
+  };
+  signature: string;
+  signed_doc: {
+    account_number: string;
+    auth_info_bytes: Uint8Array;
+    body_bytes: Uint8Array;
+    chain_id: string;
+  };
+}

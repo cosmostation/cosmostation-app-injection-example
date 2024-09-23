@@ -1,17 +1,14 @@
+import { GasPrice, SigningStargateClient } from "@cosmjs/stargate";
 import chains, { IChain } from "../constants/chains";
-import {
-  createContext,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { createContext, useCallback, useEffect, useState } from "react";
 
-import { StargateClient } from "@cosmjs/stargate";
+import { OfflineSigner } from "@cosmjs/proto-signing";
+import { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
+import useCosmostation from "../hooks/useCosmostation";
 
 interface IClient {
   chain: IChain;
-  client: StargateClient;
+  client: SigningStargateClient;
 }
 
 interface IClientProvider {
@@ -28,21 +25,66 @@ export const ClientProvider: React.FC<{ children: JSX.Element }> = ({
   children,
 }) => {
   const [clients, setClients] = useState<IClient[]>([]);
+  const { getAccount, signDirect } = useCosmostation();
+
+  const getOfflineSigner = useCallback(
+    async (chainId: string) => {
+      const signer: OfflineSigner = {
+        getAccounts: async () => {
+          const account = await getAccount(chainId);
+
+          return [
+            {
+              address: account.address,
+              pubkey: account.publicKey,
+              algo: "secp256k1",
+            },
+          ];
+        },
+        signDirect: async (_, signDoc: SignDoc) => {
+          const response = await signDirect(signDoc);
+
+          return {
+            signed: {
+              accountNumber: response.signed_doc.account_number as never,
+              chainId: response.signed_doc.chain_id,
+              authInfoBytes: response.signed_doc.auth_info_bytes,
+              bodyBytes: response.signed_doc.body_bytes,
+            },
+            signature: {
+              pub_key: response.pub_key,
+              signature: response.signature,
+            },
+          };
+        },
+      };
+      return signer;
+    },
+    [getAccount, signDirect]
+  );
 
   useEffect(() => {
     (async () => {
       const _clients = await Promise.all(
         chains.map(async (chain) => {
+          const offlineSigner = await getOfflineSigner(chain.chainId);
+
+          const client = await SigningStargateClient.connectWithSigner(
+            chain.rpc,
+            offlineSigner,
+            { gasPrice: GasPrice.fromString(`0.025${chain.denom}`) }
+          );
+
           return {
             chain,
-            client: await StargateClient.connect(chain.rpc),
+            client,
           };
         })
       );
 
       setClients(_clients);
     })();
-  }, [setClients]);
+  }, [getOfflineSigner, setClients]);
 
   const getClient = useCallback(
     (chainId: string) => {
@@ -51,15 +93,8 @@ export const ClientProvider: React.FC<{ children: JSX.Element }> = ({
     [clients]
   );
 
-  const providerValue = useMemo(() => {
-    return {
-      clients,
-      getClient,
-    };
-  }, [clients, getClient]);
-
   return (
-    <ClientContext.Provider value={providerValue}>
+    <ClientContext.Provider value={{ clients, getClient }}>
       {children}
     </ClientContext.Provider>
   );

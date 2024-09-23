@@ -1,5 +1,7 @@
 import { useCallback, useMemo } from "react";
 
+import { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
+
 const useCosmostation = () => {
   const provider = useMemo(() => {
     return window.cosmostation;
@@ -25,11 +27,30 @@ const useCosmostation = () => {
     [cosmos]
   );
 
+  const signDirect = useCallback(
+    async (signDoc: SignDoc) => {
+      return await cosmos.request<ICosmosSignDirectResponse>({
+        method: "cos_signDirect",
+        params: {
+          chainName: signDoc.chainId,
+          doc: {
+            account_number: signDoc.accountNumber.toString(),
+            chain_id: signDoc.chainId,
+            auth_info_bytes: signDoc.authInfoBytes,
+            body_bytes: signDoc.bodyBytes,
+          },
+        },
+      });
+    },
+    [cosmos]
+  );
+
   return {
     isConnected,
     provider,
     cosmos,
     getAccount,
+    signDirect,
   };
 };
 

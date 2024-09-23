@@ -2,10 +2,18 @@
   background-color: rgb(var(--base-02));
   border: solid 1px rgb(var(--base-05));
   border-radius: 5px;
-  padding: 10px 15px;
+  padding: 15px;
+  width: 100%;
+
+  @media (min-width: 650px) {
+    width: 500px;
+    padding: 20px 30px 30px;
+  }
 
   & + & {
-    margin-top: 20px;
+    @media (max-width: 650px) {
+      margin-top: 20px;
+    }
   }
 }
 
@@ -41,9 +49,56 @@
 .label {
   margin: 10px 0 5px;
   font-size: 12px;
+
+  @media (min-width: 650px) {
+    margin: 20px 0 10px;
+    font-size: 16px;
+  }
 }
 
 .amount {
   margin: 0 5px;
   color: rgb(var(--blue-01));
+}
+
+.submit {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+
+  background-color: rgb(var(--blue-02));
+  border: none;
+  border-radius: 5px;
+  margin-top: 10px;
+  padding: 15px;
+
+  color: rgb(var(--base-07));
+  font-weight: bold;
+
+  @media (min-width: 650px) {
+    font-size: 18px;
+  }
+
+  &:active {
+    background-color: rgb(var(--blue-01));
+  }
+}
+
+.disabled {
+  @extend .submit;
+
+  background-color: rgb(var(--base-05));
+  pointer-events: none;
+}
+
+.txHash {
+  text-decoration: none;
+  cursor: pointer;
+  color: rgb(var(--blue-02));
+}
+
+.txError {
+  color: rgb(var(--red-01));
 }
