@@ -16,7 +16,7 @@ const chains: IChain[] = [
     chainId: "cosmoshub-4",
     rpc: "https://cosmos-rpc.publicnode.com:443",
     decimals: 6,
-    cosmostation: "cosmos1ze2ye5u5k3qdlexvt2e0nn0508p04094j0vmx8",
+    cosmostation: "cosmos1clpqr4nrk4khgkxj78fcwwh6dl3uw4ep4tgu9q",
   },
   {
     network: "terra",
@@ -25,7 +25,7 @@ const chains: IChain[] = [
     chainId: "phoenix-1",
     rpc: "https://terra-rpc.publicnode.com:443",
     decimals: 6,
-    cosmostation: "terra1uusf63dqqwlq9mws8guth45nawnpuv6836jk6m",
+    cosmostation: "terra1564j3fq8p8np4yhh4lytnftz33japc03wuejxm",
   },
 ];
 
