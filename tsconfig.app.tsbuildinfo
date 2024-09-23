@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/chainrow/index.tsx","./src/constants/chains.ts","./src/hooks/usecosmjs.ts","./src/hooks/usecosmostation.ts","./src/providers/clientprovider.tsx","./types/cosmostation.d.ts","./types/eip1193.ts","./types/eip6963.ts","./types/global.d.ts"],"version":"5.6.2"}
