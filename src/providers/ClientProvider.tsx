@@ -33,6 +33,10 @@ export const ClientProvider: React.FC<{ children: JSX.Element }> = ({
         getAccounts: async () => {
           const account = await getAccount(chainId);
 
+          if (!account) {
+            throw Error("getAccount Failed");
+          }
+
           return [
             {
               address: account.address,
@@ -43,6 +47,10 @@ export const ClientProvider: React.FC<{ children: JSX.Element }> = ({
         },
         signDirect: async (_, signDoc: SignDoc) => {
           const response = await signDirect(signDoc);
+
+          if (!response) {
+            throw Error("signDirect Failed");
+          }
 
           return {
             signed: {

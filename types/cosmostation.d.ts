@@ -1,5 +1,5 @@
 interface ICosmostation {
-  cosmos: {
+  cosmos?: {
     request: <T>(message) => Promise<T>;
     on: (eventName: string, eventHandler: (event?: unknown) => void) => unknown;
     off: (handler: unknown) => void;

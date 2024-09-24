@@ -18,3 +18,20 @@
     margin-top: 30px;
   }
 }
+
+.warning {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  row-gap: 10px;
+
+  padding: 150px 0;
+
+  font-size: 20px;
+}
+
+.link {
+  cursor: pointer;
+  color: rgb(var(--blue-01));
+  text-decoration: none;
+}

@@ -42,12 +42,14 @@ const ChainRow: React.FC<IChainRowProps> = ({ chain }) => {
   const fetchAccounts = useCallback(async () => {
     try {
       const account = await getAccount(chain.chainId);
-      await updateBalance(account.address);
+      if (account) {
+        await updateBalance(account.address);
 
-      setAccount({
-        ...chain,
-        address: account.address,
-      });
+        setAccount({
+          ...chain,
+          address: account.address,
+        });
+      }
     } finally {
       setIsLoading(false);
     }
