@@ -40,8 +40,8 @@ const useCosmostation = () => {
   }, [isMobile, isAndroid, isiOS, isChrome, isFirefox]);
 
   const getAccount = useCallback(
-    async (chainId: string) => {
-      return await cosmos?.request<ICosmosRequestAccount>({
+    (chainId: string) => {
+      return cosmos?.request<ICosmosRequestAccount>({
         method: "cos_requestAccount",
         params: {
           chainName: chainId,
@@ -52,8 +52,8 @@ const useCosmostation = () => {
   );
 
   const signDirect = useCallback(
-    async (signDoc: SignDoc) => {
-      return await cosmos?.request<ICosmosSignDirectResponse>({
+    (signDoc: SignDoc) => {
+      return cosmos?.request<ICosmosSignDirectResponse>({
         method: "cos_signDirect",
         params: {
           chainName: signDoc.chainId,

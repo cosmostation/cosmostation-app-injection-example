@@ -11,8 +11,8 @@ By unifying the injection script interface, developers can seamlessly integrate 
 
 ```bash
 # Using yarn package manager
-yarn install
-yarn dev
+npm install
+npm run dev
 ```
 
 ## Flow Overview
