@@ -14,6 +14,23 @@ const App: React.FC = () => {
       {isInstalled && (
         <>
           <h2 className={styles.title}>Make a Donation</h2>
+          <div className={styles.notice}>
+            <p>
+              This page is a sample dApp that allows users to donate tokens to
+              Cosmostation. It was designed for developers building dApps with
+              the <b>Cosmostation App Wallet</b> or <b>Extension Wallet</b>.
+            </p>
+            <p>
+              <a
+                className={styles.link}
+                href="https://github.com/cosmostation/cosmostation-app-injection-example"
+                target="_blank"
+              >
+                Click here
+              </a>
+              &nbsp;to view the complete code.
+            </p>
+          </div>
           <div className={styles.body}>
             {chains.map((chain) => {
               return <ChainRow key={chain.chainId} chain={chain} />;
@@ -37,11 +54,10 @@ const App: React.FC = () => {
             web page.
           </p>
           <p>
-            Click&nbsp;
             <a href={downloadUrl} className={styles.link}>
-              here
+              Click here
             </a>
-            &nbsp; to install, then launch the dApp within the Cosmostation App
+            &nbsp;to install, then launch the dApp within the Cosmostation App
             Wallet.
           </p>
         </div>
@@ -50,11 +66,10 @@ const App: React.FC = () => {
         <div className={styles.warning}>
           <p>The Cosmostation Wallet Extension is missing.</p>
           <p>
-            Click&nbsp;
             <a href={downloadUrl} className={styles.link} target="_blank">
-              here
+              Click here
             </a>
-            &nbsp; to install, then refresh the page to continue.
+            &nbsp;to install, then refresh the page to continue.
           </p>
         </div>
       )}

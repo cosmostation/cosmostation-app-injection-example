@@ -1,10 +1,28 @@
 .container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 30px 20px 20px;
 }
 
 .title {
   display: flex;
   justify-content: center;
+}
+
+.notice {
+  border: solid 1px rgb(var(--base-05));
+  border-radius: 8px;
+  padding: 8px;
+  margin: 15px 0;
+  max-width: 500px;
+
+  font-size: 14px;
+  color: rgb(var(--base-06));
+
+  & > p + p {
+    margin-top: 10px;
+  }
 }
 
 .body {
