@@ -1,50 +1,81 @@
-# React + TypeScript + Vite
+# Cosmostation App Wallet Injection Example
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This code is built using the Cosmostation App Wallet’s injection script, created to assist developers building dApps with both the Cosmostation App Wallet and Cosmostation Extension Wallet.
 
-Currently, two official plugins are available:
+By unifying the injection script interface, the Cosmostation App Wallet and Extension Wallet can be seamlessly integrated and used within a single codebase.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Detailed instructions for using the injection script can be found in the [Cosmostation Docs](https://docs.cosmostation.io/extension)
+- [Example Page](https://cosmostation.github.io/cosmostation-app-injection-example/)
 
-## Expanding the ESLint configuration
+## Run example page
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+# Using yarn package manager
+yarn install
+yarn dev
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Flow Overview
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+1. When the wallet is installed (or the page is opened via the Cosmostation App Wallet on mobile), a cosmostation object will be present in the global window variable. This object allows you to execute the injected script. (To test, navigate to `Cosmostation App Wallet -> Settings -> App Info -> Developer Mode`, and enter the development address) - `src/hooks/useCosmostation.ts`
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+2. Upon the app’s initial launch, an offlineSigner is used to create a cosmjs client, which is then added to the global context - `src/providers/ClientProvider.tsx`
+
+   To define the offlineSigner, refer to the documentation for the Extension, or for the App, simply include the code provided below.
+
+   ```typescript
+   // Example code of getOfflineSigner
+   const getOfflineSigner = (chainId: string) => {
+     const signer: OfflineSigner = {
+       getAccounts: async () => {
+         const account = await getAccount(chainId);
+
+         if (!account) throw Error("getAccount Failed");
+
+         return [
+           {
+             address: account.address,
+             pubkey: account.publicKey,
+             algo: "secp256k1",
+           },
+         ];
+       },
+       signDirect: async (_, signDoc: SignDoc) => {
+         const response = await signDirect(signDoc);
+
+         if (!response) throw Error("signDirect Failed");
+
+         return {
+           signed: {
+             accountNumber: response.signed_doc.account_number,
+             chainId: response.signed_doc.chain_id,
+             authInfoBytes: response.signed_doc.auth_info_bytes,
+             bodyBytes: response.signed_doc.body_bytes,
+           },
+           signature: {
+             pub_key: response.pub_key,
+             signature: response.signature,
+           },
+         };
+       },
+     };
+     return signer;
+   };
+   ```
+
+   ```typescript
+   // Example code of create client with signer
+   const offlineSigner = await getOfflineSigner(chain.chainId);
+
+   const client = await SigningStargateClient.connectWithSigner(
+     chain.rpc,
+     offlineSigner,
+     { gasPrice: GasPrice.fromString(`0.025${chain.denom}`) }
+   );
+   ```
+
+3. With this setup, you can proceed to build your app using cosmjs.
+   ```typescript
+   // Example code of sendTokens via cosmjs (src/hooks/useCosmJS.ts)
+   await client.sendTokens(from, to, amount, fee, memo);
+   ```
