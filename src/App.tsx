@@ -21,7 +21,7 @@ const App: React.FC = () => {
           }
         }, 3000);
       } else if (isAndroid) {
-        window.location.href = "intent://dapp#Intent;scheme=cosmostation;end";
+        window.location.href = `intent://dapp?${url}#Intent;scheme=cosmostation;end`;
       }
     },
     [downloadUrl, isAndroid, isiOS]
