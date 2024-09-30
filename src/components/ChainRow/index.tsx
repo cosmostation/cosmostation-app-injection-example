@@ -67,9 +67,9 @@ const ChainRow: React.FC<IChainRowProps> = ({ chain }) => {
     return Number(balance?.amount) / 10 ** (account?.decimals || 0);
   }, [account, balance]);
 
-  const donate = useCallback(async () => {
+  const sendToken = useCallback(async () => {
     if (!account) {
-      alert("Fail to Donate");
+      alert("Fail to sendToken");
       return;
     }
 
@@ -86,10 +86,10 @@ const ChainRow: React.FC<IChainRowProps> = ({ chain }) => {
       const response = await sendTokens(
         chain.chainId,
         account.address,
-        account.cosmostation,
+        account.address,
         [{ denom: account.denom, amount: "1" }],
         "auto",
-        "Donate to Cosmostation"
+        "Memo of sendTokens"
       );
 
       if (response) {
@@ -112,15 +112,15 @@ const ChainRow: React.FC<IChainRowProps> = ({ chain }) => {
       {isLoading && "Loading..."}
       {!isLoading && (
         <>
-          <div className={styles.label}>Donate With</div>
+          <div className={styles.label}>Transfer With</div>
           <div className={styles.row}>
-            <div className={styles.donateWith}>
+            <div className={styles.transferWith}>
               {account?.symbol.toUpperCase()}
               <i>from</i>
               <span>{account?.network}</span>
             </div>
           </div>
-          <div className={styles.label}>You Donate</div>
+          <div className={styles.label}>You Transfer</div>
           <div className={styles.row}>
             <div>0.000001</div>
             <div className={styles.symbol}>{account?.symbol.toUpperCase()}</div>
@@ -148,9 +148,9 @@ const ChainRow: React.FC<IChainRowProps> = ({ chain }) => {
             className={
               isProcessing || _balance <= 0 ? styles.disabled : styles.submit
             }
-            onClick={donate}
+            onClick={sendToken}
           >
-            {isProcessing ? "Sending..." : "Donate"}
+            {isProcessing ? "Sending..." : "Transfer"}
           </div>
         </>
       )}

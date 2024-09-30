@@ -1,5 +1,6 @@
+import React, { useCallback } from "react";
+
 import ChainRow from "./components/ChainRow";
-import React from "react";
 import chains from "./constants/chains";
 import styles from "./App.module.scss";
 import useCosmostation from "./hooks/useCosmostation";
@@ -7,17 +8,34 @@ import useUserAgent from "./hooks/useUserAgent";
 
 const App: React.FC = () => {
   const { isInstalled, downloadUrl } = useCosmostation();
-  const { isMobile } = useUserAgent();
+  const { isMobile, isAndroid, isiOS } = useUserAgent();
+
+  const onLaunchApp = useCallback(
+    (url: string) => {
+      if (isiOS) {
+        window.location.href = `cosmostation://dapp?url=${url}`;
+
+        setTimeout(() => {
+          if (downloadUrl) {
+            window.location.href = downloadUrl;
+          }
+        }, 3000);
+      } else if (isAndroid) {
+        window.location.href = "intent://dapp#Intent;scheme=cosmostation;end";
+      }
+    },
+    [downloadUrl, isAndroid, isiOS]
+  );
 
   return (
     <div className={styles.container}>
       {isInstalled && (
         <>
-          <h2 className={styles.title}>Make a Donation</h2>
+          <h2 className={styles.title}>Make a Transaction</h2>
           <div className={styles.notice}>
             <p>
-              This page is a sample dApp that allows users to donate tokens to
-              Cosmostation. It was designed for developers building dApps with
+              This page is a sample dApp that allows users to transfer tokens to
+              their wallet. It was designed for developers building dApps with
               the <b>Cosmostation App Wallet</b> or <b>Extension Wallet</b>.
             </p>
             <p>
@@ -54,11 +72,14 @@ const App: React.FC = () => {
             web page.
           </p>
           <p>
-            <a href={downloadUrl} className={styles.link}>
+            <a
+              href="#none"
+              onClick={() => onLaunchApp(window.location.href)}
+              className={styles.link}
+            >
               Click here
             </a>
-            &nbsp;to install, then launch the dApp within the Cosmostation App
-            Wallet.
+            &nbsp;to launch the dApp within the Cosmostation App Wallet.
           </p>
         </div>
       )}
