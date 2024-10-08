@@ -27,6 +27,11 @@
   padding: 16px;
 }
 
+.hStack {
+  display: flex;
+  justify-content: space-between;
+}
+
 .symbol {
   color: rgb(var(--blue-01));
 }

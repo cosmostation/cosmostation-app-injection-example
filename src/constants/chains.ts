@@ -5,6 +5,7 @@ export interface IChain {
   chainId: string;
   rpc: string;
   decimals: number;
+  path: string;
 }
 
 const chains: IChain[] = [
@@ -15,6 +16,7 @@ const chains: IChain[] = [
     chainId: "cosmoshub-4",
     rpc: "https://cosmos-rpc.publicnode.com:443",
     decimals: 6,
+    path: "m/44'/118'/0'/0/X"
   },
   {
     network: "terra",
@@ -23,6 +25,7 @@ const chains: IChain[] = [
     chainId: "phoenix-1",
     rpc: "https://terra-rpc.publicnode.com:443",
     decimals: 6,
+    path: "m/44'/330'/0'/0/X"
   },
 ];
 
