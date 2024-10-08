@@ -112,7 +112,10 @@ const ChainRow: React.FC<IChainRowProps> = ({ chain }) => {
       {isLoading && "Loading..."}
       {!isLoading && (
         <>
-          <div className={styles.label}>Transfer With</div>
+          <div className={styles.hStack}>
+            <div className={styles.label}>Transfer With</div>
+            <div className={styles.label}>{chain.path}</div>
+          </div>
           <div className={styles.row}>
             <div className={styles.transferWith}>
               {account?.symbol.toUpperCase()}
