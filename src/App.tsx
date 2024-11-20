@@ -77,10 +77,18 @@ const App: React.FC = () => {
       throw new Error("No selected wallet");
     }
 
-    // TODO 이게 무조건 필요함. 이거 없으면 앱에서는 작동안함.
+    // TODO 앱에서 개발모드로 진입시 이게 무조건 필요함. 이거 없으면 앱에서는 작동안함.
     const aaa = await selectedWallet.provider.request({
       method: "eth_chainId",
     });
+
+    // TODO 앱에서 개발모드로 진입시 이게 무조건 필요함. 이거 없으면 앱에서는 작동안함.
+    const aaaa = await selectedWallet.provider.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x1" }],
+    });
+
+    console.log("🚀 ~ signMessageWithEVMWal ~ aaaa:", aaaa);
 
     console.log("🚀 ~ signMessageWithEVMWal ~ aaa:", aaa);
 
@@ -136,7 +144,9 @@ const App: React.FC = () => {
       <div>
         <button
           onClick={async () => {
-            const signature = await signMessageWithEVMWallet("Hello World");
+            const signature = await signMessageWithEVMWallet(
+              "Example `personal_sign` message"
+            );
             setsignature(signature);
           }}
         >
