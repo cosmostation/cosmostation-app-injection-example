@@ -6,6 +6,7 @@ import styles from "./App.module.scss";
 import useCosmostation from "./hooks/useCosmostation";
 import useUserAgent from "./hooks/useUserAgent";
 import { useEthereumWallets } from "./hooks/useEthereumWallets";
+import { useAccount, useConnect, useDisconnect, useSignMessage } from "wagmi";
 
 // NOTE 로컬호스트로 접근했을때, 웹,앱 정상 동작, 로컬네트워크로 접근했을때, 웹 몇몇 지갑 리스팅X, 앱또한 마찬가지
 
@@ -29,6 +30,19 @@ const App: React.FC = () => {
   );
 
   const [signature, setsignature] = useState("");
+
+  // NOTE wagmi
+
+  const { address } = useAccount();
+
+  console.log("🚀 ~ address:", address);
+
+  const { connectors, connect } = useConnect();
+  const { disconnect } = useDisconnect();
+
+  // 지갑 관련 api훅들은 아래의 docs에서 확인 가능
+  // https://wagmi.sh/react/api/hooks
+  const { signMessageAsync } = useSignMessage();
 
   const onLaunchApp = useCallback(
     (url: string) => {
@@ -130,7 +144,6 @@ const App: React.FC = () => {
             <img
               src={selectedWallet!.info.icon}
               alt={selectedWallet!.info.name}
-              style={{ width: "1px", height: "1px" }}
             />
             <div>{selectedWallet!.info.name}</div>
             <div>({userAccount})</div>
@@ -150,12 +163,54 @@ const App: React.FC = () => {
             setsignature(signature);
           }}
         >
-          Sign Message
+          Sign Message with with Vanilla code
         </button>
       </div>
       <div>
         <h3>{signature || "No Signature"}</h3>
       </div>
+      <button
+        onClick={() => {
+          setSelectedWallet(undefined);
+        }}
+      >
+        disconnect
+      </button>
+      <div>---------------------------------</div>
+      <h2>Wagmi</h2>
+      <div>
+        {connectors.map((connector) => (
+          <button
+            className={styles.walletLogoButton}
+            key={connector.uid}
+            onClick={() => connect({ connector })}
+          >
+            <img src={connector.icon} />
+            <div>{connector.name}</div>
+          </button>
+        ))}
+      </div>
+      <button
+        onClick={() => {
+          disconnect();
+        }}
+      >
+        disconnect
+      </button>
+      <button
+        onClick={async () => {
+          try {
+            const signature = await signMessageAsync({
+              message: "Example `personal_sign` message",
+            });
+            console.log("🚀 ~ signature:", signature);
+          } catch (error) {
+            console.log("🚀 ~ error:", error);
+          }
+        }}
+      >
+        Sign Message with Wagmi
+      </button>
       <div>---------------------------------</div>
       {isInstalled && (
         <>
