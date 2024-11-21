@@ -61,6 +61,15 @@ const VanillaEthereumConnect: React.FC = () => {
     return signature;
   };
 
+  if (!connectableWallets) {
+    return (
+      <div className={styles.container}>
+        <h2 className={styles.title}>Connect ETH Wallets with Vanilla codes</h2>
+        <div>No Wallets To Connect Wallet</div>;
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Connect ETH Wallets with Vanilla codes</h2>

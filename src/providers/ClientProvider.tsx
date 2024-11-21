@@ -71,6 +71,7 @@ export const ClientProvider: React.FC<{ children: JSX.Element }> = ({
     [getAccount, signDirect]
   );
 
+  // TODO useEffect제거
   useEffect(() => {
     (async () => {
       const _clients = await Promise.all(

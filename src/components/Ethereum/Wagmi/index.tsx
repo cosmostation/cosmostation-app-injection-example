@@ -1,23 +1,24 @@
 import React, { useState } from "react";
 
 import styles from "./index.module.scss";
-import {
-  Connector,
-  useAccount,
-  useConnect,
-  useDisconnect,
-  useSignMessage,
-} from "wagmi";
+import { useAccount, useConnect, useDisconnect, useSignMessage } from "wagmi";
 import BrowserWalletImg from "../../../assets/images/wallet.png";
 
 // NOTE 로컬호스트로 접근했을때, 웹,앱 정상 동작, 로컬네트워크로 접근했을때, 웹 몇몇 지갑 리스팅X, 앱또한 마찬가지
 
 const Wagmi: React.FC = () => {
-  const { address } = useAccount();
-  const { connectors, connect, isPending, isSuccess } = useConnect();
+  const {
+    address,
+    connector: selectedConnector,
+    isConnected,
+    isConnecting,
+    isDisconnected,
+  } = useAccount();
+
+  const { connectors, connectAsync } = useConnect();
+
   const { disconnect } = useDisconnect();
 
-  const [selectedConnector, setselectedConnector] = useState<Connector>();
   const [signature, setSignature] = useState("");
 
   // 지갑 관련 api훅들은 아래의 docs에서 확인 가능
@@ -40,11 +41,11 @@ const Wagmi: React.FC = () => {
               className={styles.walletLogoButton}
               key={connector.uid}
               onClick={async () => {
-                connect(
+                await connectAsync(
                   { connector },
                   {
-                    onSuccess: () => {
-                      setselectedConnector(connector);
+                    onError: (error) => {
+                      console.error("🚀 ~ onClick={ ~ error:", error);
                     },
                   }
                 );
@@ -66,9 +67,9 @@ const Wagmi: React.FC = () => {
       <h2>Current address</h2>
 
       <h3>Current Connected Wallet</h3>
-      {isPending ? (
+      {isConnecting ? (
         <div>Connecting...</div>
-      ) : isSuccess ? (
+      ) : isConnected ? (
         <div>
           <div>
             <img src={selectedConnector?.icon} />
@@ -76,9 +77,9 @@ const Wagmi: React.FC = () => {
             <div>({address})</div>
           </div>
         </div>
-      ) : (
+      ) : isDisconnected ? (
         <div>Not Connected</div>
-      )}
+      ) : null}
 
       <button
         onClick={async () => {
