@@ -9,8 +9,12 @@ import Wagmi from "./components/Ethereum/Wagmi";
 import ChainRow from "./components/UI/ChainRow";
 import VanillaCosmosConnect from "./components/Cosmos/Vanilla";
 import Logger from "./components/UI/Logger";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { config } from "./wagmi/config";
+import { WagmiProvider } from "wagmi";
 
 // NOTE 로컬호스트로 접근했을때, 웹,앱 정상 동작, 로컬네트워크로 접근했을때, 웹 몇몇 지갑 리스팅X, 앱또한 마찬가지
+const queryClient = new QueryClient();
 
 // TODO 디자인 작업
 const App: React.FC = () => {
@@ -38,7 +42,13 @@ const App: React.FC = () => {
     <div className={styles.container}>
       <VanillaEthereumConnect />
       <div>---------------------------------</div>
-      <Wagmi />
+      {/* // https://wagmi.sh/react/getting-started#wrap-app-in-context-provider */}
+
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <Wagmi />
+        </QueryClientProvider>
+      </WagmiProvider>
       <div>---------------------------------</div>
       <VanillaCosmosConnect />
       <div>---------------------------------</div>
