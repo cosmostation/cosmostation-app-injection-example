@@ -1,10 +1,5 @@
-declare global {
-  interface WindowEventMap {
-    "eip6963:announceProvider": CustomEvent;
-  }
-}
-
 let providers: EIP6963ProviderDetail[] = [];
+
 export const eip6963ProviderStore = {
   value: () => providers,
   subscribe: (callback: () => void) => {
