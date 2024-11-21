@@ -37,7 +37,6 @@ const App: React.FC = () => {
       <VanillaEthereumConnect />
       <div>---------------------------------</div>
       <Wagmi />
-
       <div>---------------------------------</div>
       {isInstalled && (
         <>
