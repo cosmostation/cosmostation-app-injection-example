@@ -1,12 +1,12 @@
 import React, { useCallback } from "react";
 
-import ChainRow from "./components/ChainRow";
 import chains from "./constants/chains";
 import styles from "./App.module.scss";
 import useCosmostation from "./hooks/useCosmostation";
 import useUserAgent from "./hooks/useUserAgent";
 import VanillaEthereumConnect from "./components/Ethereum/Vanilla";
 import Wagmi from "./components/Ethereum/Wagmi";
+import ChainRow from "./components/UI/ChainRow";
 
 // NOTE 로컬호스트로 접근했을때, 웹,앱 정상 동작, 로컬네트워크로 접근했을때, 웹 몇몇 지갑 리스팅X, 앱또한 마찬가지
 

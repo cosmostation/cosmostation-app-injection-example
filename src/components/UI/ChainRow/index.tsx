@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
-import { IChain } from "../../constants/chains";
 import styles from "./index.module.scss";
-import useCosmJS from "../../hooks/useCosmJS";
-import useCosmostation from "../../hooks/useCosmostation";
+import { IChain } from "../../../constants/chains";
+import useCosmJS from "../../../hooks/useCosmJS";
+import useCosmostation from "../../../hooks/useCosmostation";
 
 interface IChainRowProps {
   chain: IChain;
