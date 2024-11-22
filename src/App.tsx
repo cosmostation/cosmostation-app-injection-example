@@ -12,6 +12,8 @@ import Logger from "./components/UI/Logger";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { config } from "./wagmi/config";
 import { WagmiProvider } from "wagmi";
+import CosmostationWalletsPkg from "./components/Cosmos/CosmostationWalletsPkg";
+import { CosmosProvider } from "@cosmostation/use-wallets";
 
 // NOTE 로컬호스트로 접근했을때, 웹,앱 정상 동작, 로컬네트워크로 접근했을때, 웹 몇몇 지갑 리스팅X, 앱또한 마찬가지
 const queryClient = new QueryClient();
@@ -51,6 +53,10 @@ const App: React.FC = () => {
       </WagmiProvider>
       <div>---------------------------------</div>
       <VanillaCosmosConnect />
+      <div>---------------------------------</div>
+      <CosmosProvider>
+        <CosmostationWalletsPkg />
+      </CosmosProvider>
       <div>---------------------------------</div>
       {isInstalled && (
         <>

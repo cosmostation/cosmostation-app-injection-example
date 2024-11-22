@@ -47,9 +47,13 @@ const useCosmosWalletsWithVanilla = () => {
     [cosmosWallets]
   );
 
-  const disconnectWallet = useCallback(() => {
+  const disconnectWallet = useCallback(async () => {
     if (!selectedWallet) {
       throw new Error("No Wallet");
+    }
+
+    if (selectedWallet.provider.disable) {
+      await selectedWallet.provider.disable();
     }
 
     setSelectedCosmosWallet(undefined);

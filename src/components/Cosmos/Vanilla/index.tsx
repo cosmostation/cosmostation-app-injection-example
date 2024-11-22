@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 
 import styles from "./index.module.scss";
-import useCosmosWalletsWithVanilla from "../../../hooks/useCosmosWallets";
+import useCosmosWalletsWithVanilla from "../../../hooks/useCosmosWalletsWithVanilla";
 import { Key } from "@keplr-wallet/types";
 
 const VanillaCosmosConnect: React.FC = () => {
