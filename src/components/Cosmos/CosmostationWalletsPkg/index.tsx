@@ -1,20 +1,155 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import styles from "./index.module.scss";
 import { registerKeplrWallet } from "./utils/register";
 import { useCosmosAccount, useCosmosWallets } from "@cosmostation/use-wallets";
+import chains from "../../../constants/chains";
+import { GasPrice, SigningStargateClient } from "@cosmjs/stargate";
+import { OfflineSigner } from "@cosmjs/proto-signing";
+import { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
+import { toUint8Array } from "@cosmostation/wallets";
+import { Coin, StdFee } from "@cosmjs/stargate";
+import { base64ToHex, isBase64 } from "./utils/pubkeyConverter";
 
 const CosmostationWalletsPkg: React.FC = () => {
-  const chainId = "cosmoshub-4";
+  const chain = chains[0];
 
   const { cosmosWallets, currentWallet, selectWallet, closeWallet } =
     useCosmosWallets();
-  const { data: account } = useCosmosAccount(chainId);
+  const { data: account } = useCosmosAccount(chain.chainId);
 
   const [isConnectingWallet, setIsConnectingWallet] = useState(false);
   const isConnectedWallet = useMemo(() => !!currentWallet, [currentWallet]);
 
   const [signature, setsignature] = useState("");
+
+  // NOTE cosmJs로직
+  const getOfflineSigner = useCallback(
+    async (chainId: string) => {
+      const signer: OfflineSigner = {
+        getAccounts: async () => {
+          if (!currentWallet) {
+            throw Error("No Wallet");
+          }
+
+          const _account = await currentWallet.methods.getAccount(chainId);
+
+          const pubKeyValue = isBase64(_account.public_key.value)
+            ? base64ToHex(_account.public_key.value)
+            : _account.public_key.value;
+
+          return [
+            {
+              address: _account.address,
+              pubkey: toUint8Array(pubKeyValue),
+              algo: "secp256k1",
+            },
+          ];
+        },
+
+        signDirect: async (_, signDoc: SignDoc) => {
+          if (!currentWallet) {
+            throw Error("No Wallet");
+          }
+
+          const signDirectDoc = {
+            chain_id: signDoc.chainId,
+            account_number: signDoc.accountNumber.toString(),
+            body_bytes: signDoc.bodyBytes,
+            auth_info_bytes: signDoc.authInfoBytes,
+          };
+
+          const response = await currentWallet.methods.signDirect(
+            signDoc.chainId,
+            signDirectDoc
+          );
+
+          if (!response) {
+            throw Error("signDirect Failed");
+          }
+
+          const _account = await currentWallet.methods.getAccount(chainId);
+
+          const publicKeyFormatMapping = {
+            secp256k1: "tendermint/PubKeySecp256k1",
+            ethsecp256k1: "ethermint/PubKeyEthSecp256k1",
+          };
+
+          const pubKey = {
+            type: publicKeyFormatMapping[_account.public_key.type],
+            value: _account.public_key.value,
+          };
+
+          return {
+            signed: {
+              accountNumber: signDoc.accountNumber,
+              chainId: signDoc.chainId,
+              authInfoBytes: response.signed_doc.auth_info_bytes,
+              bodyBytes: response.signed_doc.body_bytes,
+            },
+            signature: {
+              pub_key: pubKey,
+              signature: response.signature,
+            },
+          };
+        },
+      };
+      return signer;
+    },
+    [currentWallet]
+  );
+
+  const getCosmJsClient = useCallback(
+    async (chainId: string) => {
+      const offlineSigner = await getOfflineSigner(chainId);
+
+      const rpcURL = chains.find((chain) => chain.chainId === chainId)?.rpc;
+
+      if (!rpcURL) {
+        throw new Error("No RPC URL");
+      }
+
+      const _clients = await SigningStargateClient.connectWithSigner(
+        rpcURL,
+        offlineSigner,
+        { gasPrice: GasPrice.fromString(`0.025${chain.denom}`) }
+      );
+
+      return _clients;
+    },
+    [chain.denom, getOfflineSigner]
+  );
+
+  const getBalance = useCallback(
+    async (
+      chainId: string,
+      address: string,
+      denom: string
+    ): Promise<Coin | null> => {
+      const _client = await getCosmJsClient(chainId);
+      const balance = await _client.getBalance(address, denom);
+
+      return balance || null;
+    },
+    [getCosmJsClient]
+  );
+
+  const sendTokens = useCallback(
+    async (
+      chainId: string,
+      from: string,
+      to: string,
+      amount: Coin[],
+      fee: StdFee | "auto" | number,
+      memo?: string
+    ) => {
+      const _client = await getCosmJsClient(chainId);
+      const response = await _client.sendTokens(from, to, amount, fee, memo);
+
+      return response;
+    },
+    [getCosmJsClient]
+  );
 
   useEffect(() => {
     registerKeplrWallet();
@@ -96,7 +231,7 @@ const CosmostationWalletsPkg: React.FC = () => {
             const message = "Example `signMessage` message";
 
             const signature = await currentWallet.methods.signMessage(
-              chainId,
+              chain.chainId,
               message,
               account.account.address
             );
@@ -121,6 +256,50 @@ const CosmostationWalletsPkg: React.FC = () => {
         }}
       >
         disconnect
+      </button>
+
+      <h3>Send</h3>
+
+      <button
+        onClick={async () => {
+          const balance = await getBalance(
+            chain.chainId,
+            account.account.address,
+            "uatom"
+          );
+
+          console.log("🚀 ~ <buttononClick={ ~ balance:", balance);
+        }}
+      >
+        Get Balance
+      </button>
+      <button
+        onClick={async () => {
+          if (!account) {
+            throw new Error("No Account");
+          }
+
+          const response = await sendTokens(
+            chain.chainId,
+            account.account.address,
+            account.account.address,
+            [{ denom: "uatom", amount: "1" }],
+            "auto",
+            "Memo of sendTokens"
+          );
+          console.log(response.transactionHash);
+        }}
+      >
+        Send Token
+      </button>
+      <button
+        onClick={async () => {
+          const aaa = await currentWallet.methods.getAccount("cosmoshub-4");
+
+          console.log("🚀 ~ onClick={ ~ aaa:", aaa);
+        }}
+      >
+        adfadsfsdf
       </button>
     </div>
   );

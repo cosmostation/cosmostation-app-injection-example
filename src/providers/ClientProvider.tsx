@@ -5,6 +5,7 @@ import { createContext, useCallback, useEffect, useState } from "react";
 import { OfflineSigner } from "@cosmjs/proto-signing";
 import { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import useCosmostation from "../hooks/useCosmostation";
+import { toHexString } from "@cosmostation/wallets";
 
 interface IClient {
   chain: IChain;
@@ -37,6 +38,14 @@ export const ClientProvider: React.FC<{ children: JSX.Element }> = ({
             throw Error("getAccount Failed");
           }
 
+          console.log({
+            address: account.address,
+            pubkey: account.publicKey,
+            algo: "secp256k1",
+          });
+
+          console.log(toHexString(account.publicKey));
+
           return [
             {
               address: account.address,
@@ -51,6 +60,19 @@ export const ClientProvider: React.FC<{ children: JSX.Element }> = ({
           if (!response) {
             throw Error("signDirect Failed");
           }
+
+          console.log({
+            signed: {
+              accountNumber: response.signed_doc.account_number as never,
+              chainId: response.signed_doc.chain_id,
+              authInfoBytes: response.signed_doc.auth_info_bytes,
+              bodyBytes: response.signed_doc.body_bytes,
+            },
+            signature: {
+              pub_key: response.pub_key,
+              signature: response.signature,
+            },
+          });
 
           return {
             signed: {
