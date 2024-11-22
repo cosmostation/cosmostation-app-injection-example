@@ -3,7 +3,7 @@ import { CosmosWallet } from "../../types/cosmos";
 import CosmostaionIcon from "../assets/images/cosmostation.png";
 import KeplrIcon from "../assets/images/keplr.png";
 
-const useCosmosWallets = () => {
+const useCosmosWalletsWithVanilla = () => {
   const cosmosWallets: CosmosWallet[] = [
     {
       id: "cosmostation",
@@ -131,4 +131,4 @@ const useCosmosWallets = () => {
   };
 };
 
-export default useCosmosWallets;
+export default useCosmosWalletsWithVanilla;
