@@ -10,6 +10,7 @@ const VanillaEthereumConnect: React.FC = () => {
   const connectableWallets = useEthereumWallets();
 
   const [isConnectingWallet, setIsConnectingWallet] = useState(false);
+  const [isProcessingSignMessage, setIsProcessingSignMessage] = useState(false);
 
   const isConnectedWallet = useMemo(
     () => !!selectedWallet && !!userAccount,
@@ -154,17 +155,30 @@ const VanillaEthereumConnect: React.FC = () => {
         <div className={styles.contentsContainer}>
           <h3>Sign Message</h3>
           <div>
-            <div className={styles.address}>{signature || "No Signature"}</div>
+            <div className={styles.address}>
+              {isProcessingSignMessage
+                ? "Processing..."
+                : signature || "No Signature"}
+            </div>
           </div>
           <div>
             <button
               className={styles.baseButton}
-              disabled={!isConnectedWallet}
+              disabled={!isConnectedWallet || isProcessingSignMessage}
               onClick={async () => {
-                const signature = await signMessageWithEVMWallet(
-                  "Example `personal_sign` message"
-                );
-                setsignature(signature);
+                try {
+                  setIsProcessingSignMessage(true);
+
+                  const signature = await signMessageWithEVMWallet(
+                    "Example `personal_sign` message"
+                  );
+
+                  setsignature(signature);
+                } catch (error) {
+                  console.error("🚀 ~ error:", error);
+                } finally {
+                  setIsProcessingSignMessage(false);
+                }
               }}
             >
               Sign Message

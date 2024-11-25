@@ -19,6 +19,7 @@ const Wagmi: React.FC = () => {
   const { disconnect } = useDisconnect();
 
   const [signature, setSignature] = useState("");
+  const [isProcessingSignMessage, setIsProcessingSignMessage] = useState(false);
 
   const selectedConnector2 = useMemo(() => {
     const isInjectedWallet = selectedConnector?.name === "Injected";
@@ -140,14 +141,20 @@ const Wagmi: React.FC = () => {
         <div className={styles.contentsContainer}>
           <h3>Sign Message</h3>
           <div>
-            <div className={styles.address}>{signature || "No Signature"}</div>
+            <div className={styles.address}>
+              {isProcessingSignMessage
+                ? "Processing..."
+                : signature || "No Signature"}
+            </div>
           </div>
           <div>
             <button
               className={styles.baseButton}
-              disabled={!isConnected}
+              disabled={!isConnected || isProcessingSignMessage}
               onClick={async () => {
                 try {
+                  setIsProcessingSignMessage(true);
+
                   const signature = await signMessageAsync({
                     message: "Example `personal_sign` message",
                   });
@@ -155,6 +162,8 @@ const Wagmi: React.FC = () => {
                   setSignature(signature);
                 } catch (error) {
                   console.log("🚀 ~ error:", error);
+                } finally {
+                  setIsProcessingSignMessage(false);
                 }
               }}
             >
