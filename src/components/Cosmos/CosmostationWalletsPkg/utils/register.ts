@@ -115,6 +115,17 @@ export function registerKeplrWallet() {
             },
           };
         },
+        signMessage: async (chainId, message, signer) => {
+          const response = await window.keplr!.signArbitrary(
+            chainId,
+            signer,
+            message
+          );
+
+          return {
+            signature: response.signature,
+          };
+        },
         disconnect: async () => {
           await window.keplr?.disable();
         },
