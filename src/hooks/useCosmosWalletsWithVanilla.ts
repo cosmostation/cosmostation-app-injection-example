@@ -2,6 +2,13 @@ import { useCallback, useMemo, useState } from "react";
 import { CosmosWallet } from "../../types/cosmos";
 import CosmostaionIcon from "../assets/images/cosmostation.png";
 import KeplrIcon from "../assets/images/keplr.png";
+import chains from "../constants/chains";
+import {
+  Coin,
+  GasPrice,
+  SigningStargateClient,
+  StdFee,
+} from "@cosmjs/stargate";
 
 const useCosmosWalletsWithVanilla = () => {
   const cosmosWallets: CosmosWallet[] = [
@@ -123,6 +130,59 @@ const useCosmosWalletsWithVanilla = () => {
     [selectedWallet]
   );
 
+  const getCosmJsClient = useCallback(
+    async (chainId: string) => {
+      const offlineSigner = await getOfflineSigner(chainId);
+
+      const selectedChain = chains.find((chain) => chain.chainId === chainId);
+      const rpcURL = selectedChain?.rpc;
+
+      if (!rpcURL) {
+        throw new Error("No RPC URL");
+      }
+
+      const _clients = await SigningStargateClient.connectWithSigner(
+        rpcURL,
+        offlineSigner,
+        { gasPrice: GasPrice.fromString(`0.025${selectedChain.denom}`) }
+      );
+
+      return _clients;
+    },
+    [getOfflineSigner]
+  );
+
+  const getBalance = useCallback(
+    async (
+      chainId: string,
+      address: string,
+      denom: string
+    ): Promise<Coin | null> => {
+      const _client = await getCosmJsClient(chainId);
+      const balance = await _client.getBalance(address, denom);
+
+      return balance || null;
+    },
+    [getCosmJsClient]
+  );
+
+  const sendTokens = useCallback(
+    async (
+      chainId: string,
+      from: string,
+      to: string,
+      amount: Coin[],
+      fee: StdFee | "auto" | number,
+      memo?: string
+    ) => {
+      const _client = await getCosmJsClient(chainId);
+      const response = await _client.sendTokens(from, to, amount, fee, memo);
+
+      return response;
+    },
+    [getCosmJsClient]
+  );
+
   return {
     selectedWallet,
     cosmosWallets,
@@ -132,6 +192,9 @@ const useCosmosWalletsWithVanilla = () => {
     signMessage,
     getAccount,
     getMultipleAccounts,
+    getCosmJsClient,
+    getBalance,
+    sendTokens,
   };
 };
 

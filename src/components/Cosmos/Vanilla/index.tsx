@@ -3,6 +3,7 @@ import React, { useMemo, useState } from "react";
 import styles from "./index.module.scss";
 import useCosmosWalletsWithVanilla from "../../../hooks/useCosmosWalletsWithVanilla";
 import { Key } from "@keplr-wallet/types";
+import chains from "../../../constants/chains";
 
 const VanillaCosmosConnect: React.FC = () => {
   const {
@@ -14,7 +15,10 @@ const VanillaCosmosConnect: React.FC = () => {
     getMultipleAccounts,
     getOfflineSigner,
     signMessage,
+    getBalance,
+    sendTokens,
   } = useCosmosWalletsWithVanilla();
+  const chain = chains[0];
 
   const [userAccount, setUserAccount] = useState<Key>();
 
@@ -41,7 +45,7 @@ const VanillaCosmosConnect: React.FC = () => {
     try {
       setIsFetchingAccount(true);
 
-      const account = await getAccount("archway-1");
+      const account = await getAccount(chain.chainId);
 
       if (!account) {
         throw new Error("No Address and PubKey");
@@ -140,7 +144,7 @@ const VanillaCosmosConnect: React.FC = () => {
             }
 
             const signature = await signMessage(
-              "archway-1",
+              chain.chainId,
               userAccount.bech32Address,
               "Example `personal_sign` message"
             );
@@ -188,6 +192,44 @@ const VanillaCosmosConnect: React.FC = () => {
         }}
       >
         offline signer
+      </button>
+      <h3>Send</h3>
+
+      <button
+        onClick={async () => {
+          if (!userAccount) {
+            throw new Error("No Account");
+          }
+
+          const balance = await getBalance(
+            chain.chainId,
+            userAccount.bech32Address,
+            chain.denom
+          );
+
+          console.log("🚀 ~ <buttononClick={ ~ balance:", balance);
+        }}
+      >
+        Get Balance
+      </button>
+      <button
+        onClick={async () => {
+          if (!userAccount) {
+            throw new Error("No Account");
+          }
+
+          const response = await sendTokens(
+            chain.chainId,
+            userAccount.bech32Address,
+            userAccount.bech32Address,
+            [{ denom: chain.denom, amount: "1" }],
+            "auto",
+            "Memo of sendTokens"
+          );
+          console.log(response.transactionHash);
+        }}
+      >
+        Send Token
       </button>
     </div>
   );
