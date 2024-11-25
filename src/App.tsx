@@ -1,12 +1,10 @@
 import React, { useCallback } from "react";
 
-import chains from "./constants/chains";
 import styles from "./App.module.scss";
 import useCosmostation from "./hooks/useCosmostation";
 import useUserAgent from "./hooks/useUserAgent";
 import VanillaEthereumConnect from "./components/Ethereum/Vanilla";
 import Wagmi from "./components/Ethereum/Wagmi";
-import ChainRow from "./components/UI/ChainRow";
 import VanillaCosmosConnect from "./components/Cosmos/Vanilla";
 import Logger from "./components/UI/Logger";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -77,11 +75,6 @@ const App: React.FC = () => {
               </a>
               &nbsp;to view the complete code.
             </p>
-          </div>
-          <div className={styles.body}>
-            {chains.map((chain) => {
-              return <ChainRow key={chain.chainId} chain={chain} />;
-            })}
           </div>
         </>
       )}
