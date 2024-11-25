@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import styles from "./index.module.scss";
 import { useAccount, useConnect, useDisconnect, useSignMessage } from "wagmi";
 import BrowserWalletImg from "../../../assets/images/wallet.png";
-
-// NOTE 로컬호스트로 접근했을때, 웹,앱 정상 동작, 로컬네트워크로 접근했을때, 웹 몇몇 지갑 리스팅X, 앱또한 마찬가지
+import WalletButton from "../../UI/WalletButton";
 
 const Wagmi: React.FC = () => {
   const {
@@ -21,85 +20,148 @@ const Wagmi: React.FC = () => {
 
   const [signature, setSignature] = useState("");
 
+  const selectedConnector2 = useMemo(() => {
+    const isInjectedWallet = selectedConnector?.name === "Injected";
+
+    const name = isInjectedWallet ? "Browser Wallet" : selectedConnector?.name;
+
+    const icon = isInjectedWallet
+      ? BrowserWalletImg
+      : selectedConnector?.icon || "";
+
+    return {
+      ...selectedConnector,
+      name,
+      icon,
+    };
+  }, [selectedConnector]);
+
   // 지갑 관련 api훅들은 아래의 docs에서 확인 가능
   // https://wagmi.sh/react/api/hooks
   const { signMessageAsync } = useSignMessage();
 
   return (
-    <div className={styles.container}>
-      <h2>Wagmi</h2>
-      <div>
-        {connectors.map((connector) => {
-          const isInjectedWallet = connector.name === "Injected";
-
-          const name = isInjectedWallet ? "Browser Wallet" : connector.name;
-
-          const image = isInjectedWallet ? BrowserWalletImg : connector.icon;
-
-          return (
-            <button
-              className={styles.walletLogoButton}
-              key={connector.uid}
-              onClick={async () => {
-                await connectAsync(
-                  { connector },
-                  {
-                    onError: (error) => {
-                      console.error("🚀 ~ onClick={ ~ error:", error);
-                    },
-                  }
-                );
-              }}
-            >
-              <img src={image} />
-              <div>{name}</div>
-            </button>
-          );
-        })}
+    <>
+      <div className={styles.notice}>
+        <p>
+          This page is a sample dApp that allows users to transfer tokens to
+          their wallet. It was designed for developers building dApps with the{" "}
+          <b>Cosmostation App Wallet</b> or <b>Extension Wallet</b>.
+        </p>
+        <p>
+          <a
+            className={styles.link}
+            href="https://github.com/cosmostation/cosmostation-app-injection-example"
+            target="_blank"
+          >
+            Click here
+          </a>
+          &nbsp;to view the complete code.
+        </p>
       </div>
-      <button
-        onClick={() => {
-          disconnect();
-        }}
-      >
-        disconnect
-      </button>
-      <h2>Current address</h2>
+      <div className={styles.container}>
+        <div className={styles.contentsContainer}>
+          <h3 className={styles.title}>Choose your Wallet</h3>
 
-      <h3>Current Connected Wallet</h3>
-      {isConnecting ? (
-        <div>Connecting...</div>
-      ) : isConnected ? (
-        <div>
-          <div>
-            <img src={selectedConnector?.icon} />
-            <div>{selectedConnector?.name}</div>
-            <div>({address})</div>
+          <div className={styles.walletButtonContainer}>
+            {connectors.length > 0 ? (
+              connectors?.map((connector) => {
+                const isInjectedWallet = connector.name === "Injected";
+
+                const name = isInjectedWallet
+                  ? "Browser Wallet"
+                  : connector.name;
+
+                const image = isInjectedWallet
+                  ? BrowserWalletImg
+                  : connector.icon || "";
+
+                return (
+                  <WalletButton
+                    walletImage={image}
+                    walletName={name}
+                    key={connector.uid}
+                    onClick={async () => {
+                      await connectAsync(
+                        { connector },
+                        {
+                          onError: (error) => {
+                            console.error("🚀 ~ onClick={ ~ error:", error);
+                          },
+                        }
+                      );
+                    }}
+                  />
+                );
+              })
+            ) : (
+              <div>No Announced Wallet Providers</div>
+            )}
           </div>
         </div>
-      ) : isDisconnected ? (
-        <div>Not Connected</div>
-      ) : null}
 
-      <button
-        onClick={async () => {
-          try {
-            const signature = await signMessageAsync({
-              message: "Example `personal_sign` message",
-            });
+        <div className={styles.contentsContainer}>
+          <h3 className={styles.title}>Current Connected Wallet</h3>
 
-            setSignature(signature);
-          } catch (error) {
-            console.log("🚀 ~ error:", error);
-          }
-        }}
-      >
-        Sign Message with Wagmi
-      </button>
-      <div>
-        <h3>{signature || "No Signature"}</h3>
+          <div className={styles.connectedWalletContainer}>
+            {isConnecting ? (
+              <div>Connecting...</div>
+            ) : isConnected ? (
+              <div className={styles.contents}>
+                <div className={styles.connectedWallet}>
+                  <img
+                    className={styles.connectedWalletImage}
+                    src={selectedConnector2?.icon}
+                  />
+                  <div className={styles.walletName}>
+                    {selectedConnector2?.name}
+                  </div>
+                </div>
+                <div className={styles.address}>{address}</div>
+              </div>
+            ) : isDisconnected ? (
+              <div className={styles.contents}>
+                <h4>Not Connected</h4>
+              </div>
+            ) : null}
+          </div>
+
+          <button
+            className={styles.baseButton}
+            onClick={() => {
+              disconnect();
+            }}
+          >
+            <h4>Disconnect</h4>
+          </button>
+        </div>
+
+        <div className={styles.contentsContainer}>
+          <h3>Sign Message</h3>
+          <div>
+            <div className={styles.address}>{signature || "No Signature"}</div>
+          </div>
+          <div>
+            <button
+              className={styles.baseButton}
+              onClick={async () => {
+                try {
+                  const signature = await signMessageAsync({
+                    message: "Example `personal_sign` message",
+                  });
+
+                  setSignature(signature);
+                } catch (error) {
+                  console.log("🚀 ~ error:", error);
+                }
+              }}
+            >
+              Sign Message
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
