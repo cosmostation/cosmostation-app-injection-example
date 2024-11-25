@@ -40,6 +40,8 @@ const useCosmosWalletsWithVanilla = () => {
       if (isMobile) {
         return wallet.id === "cosmostation";
       }
+
+      return true;
     });
 
   const [selectedCosmosWallet, setSelectedCosmosWallet] =

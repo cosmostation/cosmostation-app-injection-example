@@ -6,7 +6,6 @@ import useUserAgent from "./hooks/useUserAgent";
 import VanillaEthereumConnect from "./components/Ethereum/Vanilla";
 import Wagmi from "./components/Ethereum/Wagmi";
 import VanillaCosmosConnect from "./components/Cosmos/Vanilla";
-import Logger from "./components/UI/Logger";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { config } from "./wagmi/config";
 import { WagmiProvider } from "wagmi";

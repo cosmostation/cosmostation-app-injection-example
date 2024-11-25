@@ -10,8 +10,12 @@ import { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { toUint8Array } from "@cosmostation/wallets";
 import { Coin, StdFee } from "@cosmjs/stargate";
 import { base64ToHex, isBase64 } from "./utils/pubkeyConverter";
+import useUserAgent from "../../../hooks/useUserAgent";
+import WalletButton from "../../UI/WalletButton";
 
 const CosmostationWalletsPkg: React.FC = () => {
+  const { isMobile } = useUserAgent();
+
   const chain = chains[0];
 
   const { cosmosWallets, currentWallet, selectWallet, closeWallet } =
@@ -152,8 +156,17 @@ const CosmostationWalletsPkg: React.FC = () => {
   );
 
   useEffect(() => {
-    registerKeplrWallet();
-  }, []);
+    // NOTE 모바일일 경우 window.keplr에도 cosmostation의 프로바이더를 인젝트해서 사용중이기 때문에 같은 프로바이더가 중복리스팅되지 않도록 작업.
+    if (!isMobile) {
+      registerKeplrWallet();
+    }
+
+    // NOTE 모바일일 경우 바로 연결되도록 작업.
+    if (isMobile) {
+      selectWallet(cosmosWallets[0].id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMobile]);
 
   // TODO 모바일인 경우에는 useEffect로 바로 연결되도록 작업.
 
@@ -165,8 +178,9 @@ const CosmostationWalletsPkg: React.FC = () => {
       <div className={styles.walletButtonContainer}>
         {cosmosWallets.length > 0 ? (
           cosmosWallets?.map((wallet) => (
-            <button
-              className={styles.walletLogoButton}
+            <WalletButton
+              walletImage={wallet.logo}
+              walletName={wallet.name}
               key={wallet.id}
               onClick={async () => {
                 try {
@@ -179,10 +193,7 @@ const CosmostationWalletsPkg: React.FC = () => {
                   setIsConnectingWallet(false);
                 }
               }}
-            >
-              <img src={wallet.logo} alt={wallet.name} width={40} height={40} />{" "}
-              {wallet.name}
-            </button>
+            />
           ))
         ) : (
           <div>No Announced Wallet Providers</div>

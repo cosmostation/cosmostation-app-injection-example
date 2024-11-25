@@ -1,0 +1,15 @@
+.walletLogoButton {
+  width: fit-content;
+  height: fit-content;
+
+  display: flex;
+  align-items: center;
+
+  border: none;
+
+  border-radius: 0;
+  > img {
+    width: 40px;
+    height: 40px;
+  }
+}
