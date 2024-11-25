@@ -9,13 +9,18 @@ import {
   SigningStargateClient,
   StdFee,
 } from "@cosmjs/stargate";
+import { Key } from "@keplr-wallet/types";
+import useUserAgent from "./useUserAgent";
 
 const useCosmosWalletsWithVanilla = () => {
+  const { isMobile } = useUserAgent();
+
   const cosmosWallets: CosmosWallet[] = [
     {
       id: "cosmostation",
       name: "Cosmostation",
       icon: CosmostaionIcon,
+      // https://docs.cosmostation.io/extension/integration/cosmos/integrate-keplr
       provider: window.cosmostation?.providers?.keplr,
     },
     // NOTE 모바일에서는 keplr도 뜨는데 우리는 window.keplr에도 인젝트 시켰기 때문에 나온다. 인젝트되는 provier객체는  window.cosmostation?.providers?.keplr와 동일한 객체임.
@@ -26,20 +31,31 @@ const useCosmosWalletsWithVanilla = () => {
       icon: KeplrIcon,
       provider: window.keplr,
     },
-  ].filter((wallet) => wallet.provider);
+  ]
+    // NOTE provider가 없는 경우는 연결 불가능한 지갑으로 판단
+    .filter((wallet) => wallet.provider)
+    // NOTE 모바일에서는 cosmostation만 뜨도록 함.
+    // NOTE 모바일에서는 window.keplr에도 코스모스테이션의 프로바이더를 인젝트 시켰기 때문에 둘다 뜨게 됨.
+    .filter((wallet) => {
+      if (isMobile) {
+        return wallet.id === "cosmostation";
+      }
+    });
 
   const [selectedCosmosWallet, setSelectedCosmosWallet] =
     useState<CosmosWallet>();
+  const [selectedUserAccount, setSelectedUserAccount] = useState<Key>();
 
   const selectedWallet = useMemo(
     () => selectedCosmosWallet,
     [selectedCosmosWallet]
   );
 
-  //NOTE enable안에 들어가는 chainId는 크게 의미가 없음. enable은 단순히 활성화만 시키는 것이기 때문
+  const userAccount = useMemo(() => selectedUserAccount, [selectedUserAccount]);
+
   const connectWallet = useCallback(
-    async (id: string) => {
-      const wallet = cosmosWallets.find((wallet) => wallet.id === id);
+    async (walletId: string, chainId: string) => {
+      const wallet = cosmosWallets.find((wallet) => wallet.id === walletId);
 
       if (!wallet) {
         throw new Error("No Wallet");
@@ -47,8 +63,12 @@ const useCosmosWalletsWithVanilla = () => {
 
       const provider = wallet.provider;
 
-      await provider.enable("archway-1");
+      await provider.enable(chainId);
+
+      const response = await provider.getKey(chainId);
+
       setSelectedCosmosWallet(wallet);
+      setSelectedUserAccount(response);
     },
 
     [cosmosWallets]
@@ -106,7 +126,7 @@ const useCosmosWalletsWithVanilla = () => {
 
       const response = await provider.getKey(chainId);
 
-      return response;
+      setSelectedUserAccount(response);
     },
     [selectedWallet]
   );
@@ -141,13 +161,13 @@ const useCosmosWalletsWithVanilla = () => {
         throw new Error("No RPC URL");
       }
 
-      const _clients = await SigningStargateClient.connectWithSigner(
+      const cosmJsClient = await SigningStargateClient.connectWithSigner(
         rpcURL,
         offlineSigner,
         { gasPrice: GasPrice.fromString(`0.025${selectedChain.denom}`) }
       );
 
-      return _clients;
+      return cosmJsClient;
     },
     [getOfflineSigner]
   );
@@ -158,8 +178,8 @@ const useCosmosWalletsWithVanilla = () => {
       address: string,
       denom: string
     ): Promise<Coin | null> => {
-      const _client = await getCosmJsClient(chainId);
-      const balance = await _client.getBalance(address, denom);
+      const cosmJsClient = await getCosmJsClient(chainId);
+      const balance = await cosmJsClient.getBalance(address, denom);
 
       return balance || null;
     },
@@ -175,8 +195,14 @@ const useCosmosWalletsWithVanilla = () => {
       fee: StdFee | "auto" | number,
       memo?: string
     ) => {
-      const _client = await getCosmJsClient(chainId);
-      const response = await _client.sendTokens(from, to, amount, fee, memo);
+      const cosmJsClient = await getCosmJsClient(chainId);
+      const response = await cosmJsClient.sendTokens(
+        from,
+        to,
+        amount,
+        fee,
+        memo
+      );
 
       return response;
     },
@@ -186,6 +212,7 @@ const useCosmosWalletsWithVanilla = () => {
   return {
     selectedWallet,
     cosmosWallets,
+    userAccount,
     connectWallet,
     disconnectWallet,
     getOfflineSigner,

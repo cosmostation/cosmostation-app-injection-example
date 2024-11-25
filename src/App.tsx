@@ -116,7 +116,7 @@ const App: React.FC = () => {
           </p>
         </div>
       )}
-      <Logger />
+      {/* <Logger /> */}
     </div>
   );
 };

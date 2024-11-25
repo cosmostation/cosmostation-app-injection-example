@@ -1,39 +1,36 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import styles from "./index.module.scss";
 import useCosmosWalletsWithVanilla from "../../../hooks/useCosmosWalletsWithVanilla";
-import { Key } from "@keplr-wallet/types";
 import chains from "../../../constants/chains";
+import useUserAgent from "../../../hooks/useUserAgent";
+import { convertPubKeyToHex } from "./utils/pubKeyConverter";
 
 const VanillaCosmosConnect: React.FC = () => {
   const {
     selectedWallet,
     cosmosWallets,
+    userAccount,
     connectWallet,
     disconnectWallet,
-    getAccount,
-    getMultipleAccounts,
-    getOfflineSigner,
     signMessage,
     getBalance,
     sendTokens,
   } = useCosmosWalletsWithVanilla();
+  const { isMobile } = useUserAgent();
   const chain = chains[0];
 
-  const [userAccount, setUserAccount] = useState<Key>();
-
   const [isConnectingWallet, setIsConnectingWallet] = useState(false);
-  const [isFetchingAccount, setIsFetchingAccount] = useState(false);
 
   const isConnectedWallet = useMemo(() => !!selectedWallet, [selectedWallet]);
 
   const [signature, setsignature] = useState("");
 
-  const handleWalletConnect = async (walletId: string) => {
+  const handleWalletConnect = async (walletId: string, chainId: string) => {
     try {
       setIsConnectingWallet(true);
 
-      await connectWallet(walletId);
+      await connectWallet(walletId, chainId);
     } catch (error) {
       console.error("🚀 ~ error:", error);
     } finally {
@@ -41,30 +38,18 @@ const VanillaCosmosConnect: React.FC = () => {
     }
   };
 
-  const handleGetAccount = async () => {
-    try {
-      setIsFetchingAccount(true);
-
-      const account = await getAccount(chain.chainId);
-
-      if (!account) {
-        throw new Error("No Address and PubKey");
-      }
-
-      setUserAccount(account);
-    } catch (error) {
-      console.log("🚀 ~ handleGetAccount ~ error:", error);
-    } finally {
-      setIsFetchingAccount(false);
-    }
-  };
-
   const resetWallet = () => {
-    setUserAccount(undefined);
     setsignature("");
   };
 
-  // TODO 모바일인 경우에는 useEffect로 바로 연결되도록 작업.
+  useEffect(() => {
+    (async () => {
+      if (isMobile) {
+        await handleWalletConnect(cosmosWallets[0].id, chain.chainId);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMobile]);
 
   return (
     <div className={styles.container}>
@@ -80,7 +65,7 @@ const VanillaCosmosConnect: React.FC = () => {
               onClick={async () => {
                 resetWallet();
 
-                await handleWalletConnect(wallet.id);
+                await handleWalletConnect(wallet.id, chain.chainId);
               }}
             >
               <img src={wallet.icon} />
@@ -105,39 +90,21 @@ const VanillaCosmosConnect: React.FC = () => {
         <div>Not Connected</div>
       )}
       <h3>Current Account</h3>
-      {isFetchingAccount ? (
-        <div>fethching...</div>
-      ) : userAccount ? (
+      {userAccount ? (
         <div>
           <div>
             <div>({userAccount.bech32Address})</div>
             <div>({userAccount.name})</div>
-            <div>
-              (
-              {Array.from(userAccount.pubKey)
-                .map((byte) => byte.toString(16).padStart(2, "0"))
-                .join("")}
-              )
-            </div>
+            <div>({convertPubKeyToHex(userAccount.pubKey)})</div>
           </div>
         </div>
       ) : (
         <div>Not Fetched</div>
       )}
-      <h3>Get Account</h3>
-      <div>
-        <button
-          disabled={!isConnectedWallet}
-          onClick={async () => {
-            await handleGetAccount();
-          }}
-        >
-          Get Account
-        </button>
-      </div>
       <h3>Sign Message with Connected Wallet</h3>
       <div>
         <button
+          disabled={!isConnectedWallet}
           onClick={async () => {
             if (!userAccount) {
               throw new Error("No Account");
@@ -163,36 +130,14 @@ const VanillaCosmosConnect: React.FC = () => {
         <h3>{signature || "No Signature"}</h3>
       </div>
       <button
+        disabled={!isConnectedWallet}
         onClick={() => {
           disconnectWallet();
         }}
       >
         disconnect
       </button>
-      <button
-        onClick={async () => {
-          const response = await getMultipleAccounts([
-            "archway-1",
-            "cosmoshub-4",
-          ]);
-          console.log("🚀 ~ onClick={ ~ response:", response);
-        }}
-      >
-        multiple accounts
-      </button>
-      <button
-        onClick={async () => {
-          const response = await getOfflineSigner("archway-1");
 
-          console.log("🚀 ~ onClick={ ~ response:", response);
-
-          const aaa = await response.getAccounts();
-
-          console.log("🚀 ~ onClick={ ~ aaa:", aaa);
-        }}
-      >
-        offline signer
-      </button>
       <h3>Send</h3>
 
       <button
@@ -213,6 +158,7 @@ const VanillaCosmosConnect: React.FC = () => {
         Get Balance
       </button>
       <button
+        disabled={!isConnectedWallet}
         onClick={async () => {
           if (!userAccount) {
             throw new Error("No Account");
