@@ -177,6 +177,11 @@
     background-color: rgb(var(--purple-02));
   }
 
+  &:disabled {
+    background-color: rgb(var(--base-05));
+    cursor: not-allowed;
+  }
+
   font-weight: bold;
 }
 

@@ -128,6 +128,7 @@ const Wagmi: React.FC = () => {
 
           <button
             className={styles.baseButton}
+            disabled={!isConnected}
             onClick={() => {
               disconnect();
             }}
@@ -144,6 +145,7 @@ const Wagmi: React.FC = () => {
           <div>
             <button
               className={styles.baseButton}
+              disabled={!isConnected}
               onClick={async () => {
                 try {
                   const signature = await signMessageAsync({

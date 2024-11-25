@@ -142,6 +142,7 @@ const VanillaEthereumConnect: React.FC = () => {
 
           <button
             className={styles.baseButton}
+            disabled={!isConnectedWallet}
             onClick={() => {
               setSelectedWallet(undefined);
             }}
@@ -158,6 +159,7 @@ const VanillaEthereumConnect: React.FC = () => {
           <div>
             <button
               className={styles.baseButton}
+              disabled={!isConnectedWallet}
               onClick={async () => {
                 const signature = await signMessageWithEVMWallet(
                   "Example `personal_sign` message"
