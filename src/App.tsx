@@ -24,6 +24,13 @@ const connectType = {
   "@cosmostation/wallets": "@cosmostation/wallets",
 } as const;
 
+const title = {
+  "eip-6963": "Connect Ethereum Wallet With EIP-6963",
+  wagmi: "Connect Ethereum Wallet With Wagmi",
+  "vanilla-cosmos": "Connect Cosmos Wallets with Vanilla",
+  "@cosmostation/wallets": "Connect Cosmos Wallets with @cosmostation/wallets",
+};
+
 type ConnectType = (typeof connectType)[keyof typeof connectType];
 
 // TODO 디자인 작업
@@ -55,7 +62,7 @@ const App: React.FC = () => {
   return (
     // TODO 설치여부, ua에 따라 분기처리 필요.
     <div className={styles.container}>
-      <h3>Connect Wallet With EIP-6963</h3>
+      <h1>{title[activeType]}</h1>
 
       <div className={styles.connectTypeButtonWrapper}>
         <div className={styles.chainCategory}>
@@ -91,7 +98,7 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        <div className={styles.divier} />
+        <div className={styles.divider} />
 
         <div className={styles.chainCategory}>
           <div className={styles.chain}>

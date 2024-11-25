@@ -118,10 +118,10 @@ const VanillaCosmosConnect: React.FC = () => {
                     {selectedWallet?.name}
                   </div>
                 </div>
-                <div className={styles.address}>
+                <div className={styles.workBreak}>
                   {userAccount?.bech32Address}
                 </div>
-                <div className={styles.address}>{userAccount?.name}</div>
+                <div className={styles.workBreak}>{userAccount?.name}</div>
               </div>
             ) : (
               <div className={styles.contents}>
@@ -143,8 +143,9 @@ const VanillaCosmosConnect: React.FC = () => {
 
         <div className={styles.contentsContainer}>
           <h3>Sign Message</h3>
-          <div>
-            <div className={styles.address}>
+
+          <div className={styles.contents}>
+            <div className={styles.workBreak}>
               {isProcessingSignMessage
                 ? "Processing..."
                 : signature || "No Signature"}
@@ -187,12 +188,14 @@ const VanillaCosmosConnect: React.FC = () => {
 
         <div className={styles.contentsContainer}>
           <h3>Balance</h3>
-          <div>
-            {isFetchingBalance
-              ? "Fetching Balance..."
-              : balance
-              ? `${balance.amount} ${chain.denom}`
-              : "No Balance"}
+          <div className={styles.contents}>
+            <div className={styles.workBreak}>
+              {isFetchingBalance
+                ? "Fetching Balance..."
+                : balance
+                ? `${balance.amount} ${balance.denom}`
+                : "No Balance"}
+            </div>
           </div>
           <div>
             <button
@@ -230,8 +233,8 @@ const VanillaCosmosConnect: React.FC = () => {
 
         <div className={styles.contentsContainer}>
           <h3>Call Send Sign</h3>
-          <div>
-            <div className={styles.address}>
+          <div className={styles.contents}>
+            <div className={styles.workBreak}>
               {isProcessingSendToken ? "Processing..." : txHash || "No TxHash"}
             </div>
           </div>

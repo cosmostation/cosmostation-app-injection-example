@@ -17,7 +17,7 @@ const VanillaEthereumConnect: React.FC = () => {
     [selectedWallet, userAccount]
   );
 
-  const [signature, setsignature] = useState("");
+  const [signature, setSignature] = useState("");
 
   const connectWallet = async (providerWithInfo: EIP6963ProviderDetail) => {
     try {
@@ -104,6 +104,8 @@ const VanillaEthereumConnect: React.FC = () => {
                   walletName={provider.info.name}
                   key={provider.info.uuid}
                   onClick={() => {
+                    setSignature("");
+
                     connectWallet(provider);
                   }}
                 />
@@ -132,7 +134,7 @@ const VanillaEthereumConnect: React.FC = () => {
                     {selectedWallet!.info.name}
                   </div>
                 </div>
-                <div className={styles.address}>{userAccount}</div>
+                <div className={styles.workBreak}>{userAccount}</div>
               </div>
             ) : (
               <div className={styles.contents}>
@@ -155,7 +157,7 @@ const VanillaEthereumConnect: React.FC = () => {
         <div className={styles.contentsContainer}>
           <h3>Sign Message</h3>
           <div>
-            <div className={styles.address}>
+            <div className={styles.workBreak}>
               {isProcessingSignMessage
                 ? "Processing..."
                 : signature || "No Signature"}
@@ -173,7 +175,7 @@ const VanillaEthereumConnect: React.FC = () => {
                     "Example `personal_sign` message"
                   );
 
-                  setsignature(signature);
+                  setSignature(signature);
                 } catch (error) {
                   console.error("🚀 ~ error:", error);
                 } finally {

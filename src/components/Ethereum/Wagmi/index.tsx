@@ -83,6 +83,8 @@ const Wagmi: React.FC = () => {
                     walletName={name}
                     key={connector.uid}
                     onClick={async () => {
+                      setSignature("");
+
                       await connectAsync(
                         { connector },
                         {
@@ -118,7 +120,7 @@ const Wagmi: React.FC = () => {
                     {selectedConnector2?.name}
                   </div>
                 </div>
-                <div className={styles.address}>{address}</div>
+                <div className={styles.workBreak}>{address}</div>
               </div>
             ) : isDisconnected ? (
               <div className={styles.contents}>
@@ -141,7 +143,7 @@ const Wagmi: React.FC = () => {
         <div className={styles.contentsContainer}>
           <h3>Sign Message</h3>
           <div>
-            <div className={styles.address}>
+            <div className={styles.workBreak}>
               {isProcessingSignMessage
                 ? "Processing..."
                 : signature || "No Signature"}
