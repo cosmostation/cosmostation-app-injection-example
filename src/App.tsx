@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 
 import styles from "./App.module.scss";
 import useCosmostation from "./hooks/useCosmostation";
@@ -11,14 +11,29 @@ import { config } from "./wagmi/config";
 import { WagmiProvider } from "wagmi";
 import CosmostationWalletsPkg from "./components/Cosmos/CosmostationWalletsPkg";
 import { CosmosProvider } from "@cosmostation/use-wallets";
+import EthereumImage from "./assets/images/ethereum.png";
+import CosmosImage from "./assets/images/cosmos.png";
 
 // NOTE 로컬호스트로 접근했을때, 웹,앱 정상 동작, 로컬네트워크로 접근했을때, 웹 몇몇 지갑 리스팅X, 앱또한 마찬가지
 const queryClient = new QueryClient();
+
+const connectType = {
+  "eip-6963": "eip-6963",
+  wagmi: "wagmi",
+  "vanilla-cosmos": "vanilla-cosmos",
+  "@cosmostation/wallets": "@cosmostation/wallets",
+} as const;
+
+type ConnectType = (typeof connectType)[keyof typeof connectType];
 
 // TODO 디자인 작업
 const App: React.FC = () => {
   const { isInstalled, downloadUrl } = useCosmostation();
   const { isMobile, isAndroid, isiOS } = useUserAgent();
+
+  const [activeType, setActiveType] = useState<ConnectType>(
+    connectType["eip-6963"]
+  );
 
   const onLaunchApp = useCallback(
     (url: string) => {
@@ -39,22 +54,83 @@ const App: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <VanillaEthereumConnect />
-      <div>---------------------------------</div>
-      {/* // https://wagmi.sh/react/getting-started#wrap-app-in-context-provider */}
+      <h3>Connect Wallet With EIP-6963</h3>
 
-      <WagmiProvider config={config}>
-        <QueryClientProvider client={queryClient}>
-          <Wagmi />
-        </QueryClientProvider>
-      </WagmiProvider>
-      <div>---------------------------------</div>
-      <VanillaCosmosConnect />
-      <div>---------------------------------</div>
-      <CosmosProvider>
-        <CosmostationWalletsPkg />
-      </CosmosProvider>
-      <div>---------------------------------</div>
+      <div className={styles.connectTypeButtonWrapper}>
+        <div className={styles.chainCategory}>
+          <div className={styles.chain}>
+            <img src={EthereumImage} />
+            <h6>Ethereum networks</h6>
+          </div>
+          <div className={styles.connectTypeButtonContainer}>
+            <button
+              className={`${styles.connectTypeButton} ${
+                activeType === connectType["eip-6963"] ? styles.active : ""
+              }`}
+              onClick={() => setActiveType(connectType["eip-6963"])}
+            >
+              <h3>use EIP-6963</h3>
+            </button>
+            <button
+              className={`${styles.connectTypeButton} ${
+                activeType === connectType["wagmi"] ? styles.active : ""
+              }`}
+              onClick={() => setActiveType(connectType["wagmi"])}
+            >
+              <h3>use Wagmi</h3>
+            </button>
+          </div>
+        </div>
+
+        <div className={styles.divier} />
+
+        <div className={styles.chainCategory}>
+          <div className={styles.chain}>
+            <img src={CosmosImage} />
+            <h6>Cosmos networks</h6>
+          </div>
+          <div className={styles.connectTypeButtonContainer}>
+            <button
+              className={`${styles.connectTypeButton} ${
+                activeType === connectType["vanilla-cosmos"]
+                  ? styles.active
+                  : ""
+              }`}
+              onClick={() => setActiveType(connectType["vanilla-cosmos"])}
+            >
+              <h3>use Vanilla</h3>
+            </button>
+            <button
+              className={`${styles.connectTypeButton} ${
+                activeType === connectType["@cosmostation/wallets"]
+                  ? styles.active
+                  : ""
+              }`}
+              onClick={() =>
+                setActiveType(connectType["@cosmostation/wallets"])
+              }
+            >
+              <h3>use @cosmostation/wallets</h3>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {activeType === connectType["eip-6963"] && <VanillaEthereumConnect />}
+      {activeType === connectType["wagmi"] && (
+        <WagmiProvider config={config}>
+          <QueryClientProvider client={queryClient}>
+            <Wagmi />
+          </QueryClientProvider>
+        </WagmiProvider>
+      )}
+      {activeType === connectType["vanilla-cosmos"] && <VanillaCosmosConnect />}
+      {activeType === connectType["@cosmostation/wallets"] && (
+        <CosmosProvider>
+          <CosmostationWalletsPkg />
+        </CosmosProvider>
+      )}
+
       {isInstalled && (
         <>
           <h2 className={styles.title}>Cosmos Wallets</h2>

@@ -73,8 +73,6 @@ const VanillaEthereumConnect: React.FC = () => {
 
   return (
     <>
-      <h3>Connect Wallet With EIP-6963</h3>
-
       <div className={styles.notice}>
         <p>
           This page is a sample dApp that allows users to transfer tokens to

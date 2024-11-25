@@ -16,10 +16,13 @@ import WalletButton from "../../UI/WalletButton";
 const CosmostationWalletsPkg: React.FC = () => {
   const { isMobile } = useUserAgent();
 
+  console.log("🚀 ~ isMobile:", isMobile);
+
   const chain = chains[0];
 
   const { cosmosWallets, currentWallet, selectWallet, closeWallet } =
     useCosmosWallets();
+  console.log("🚀 ~ cosmosWallets:", cosmosWallets);
   const { data: account } = useCosmosAccount(chain.chainId);
 
   const [isConnectingWallet, setIsConnectingWallet] = useState(false);
@@ -157,9 +160,11 @@ const CosmostationWalletsPkg: React.FC = () => {
 
   useEffect(() => {
     // NOTE 모바일일 경우 window.keplr에도 cosmostation의 프로바이더를 인젝트해서 사용중이기 때문에 같은 프로바이더가 중복리스팅되지 않도록 작업.
-    if (!isMobile) {
-      registerKeplrWallet();
-    }
+
+    // FIXME 이거 바로 true가 뜨는게 아니라 시간차로 true로 바뀌어서 수정이 필요함.
+    // if (!isMobile) {
+    //   registerKeplrWallet();
+    // }
 
     // NOTE 모바일일 경우 바로 연결되도록 작업.
     if (isMobile) {

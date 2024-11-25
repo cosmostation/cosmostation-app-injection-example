@@ -1,10 +1,10 @@
 .container {
+  width: 100%;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 30px 20px 20px;
-
-  background-color: #23272f;
 }
 
 .title {
@@ -84,4 +84,76 @@
     width: 50%;
     height: 50%;
   }
+}
+
+.connectTypeButtonWrapper {
+  width: 100%;
+
+  display: flex;
+  justify-content: center;
+  column-gap: 10px;
+
+  overflow: auto;
+}
+
+.chainCategory {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  row-gap: 10px;
+}
+
+.chain {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 30px;
+  height: 30px;
+  > img {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.connectTypeButtonContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: 10px;
+}
+
+.connectTypeButtonContainer {
+  display: flex;
+  justify-content: center;
+  column-gap: 10px;
+}
+
+.connectTypeButton {
+  padding: 5px;
+
+  background-color: transparent;
+
+  color: white;
+
+  border: none;
+
+  &:hover {
+    background-color: rgb(var(--purple-02));
+  }
+}
+
+.evm {
+  margin-top: 5px;
+
+  display: flex;
+}
+
+.active {
+  background-color: #3e444b;
+}
+
+.divier {
+  border: 1px solid rgb(var(--base-05));
 }
