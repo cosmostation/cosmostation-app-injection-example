@@ -292,15 +292,6 @@ const CosmostationWalletsPkg: React.FC = () => {
       >
         Send Token
       </button>
-      <button
-        onClick={async () => {
-          const aaa = await currentWallet.methods.getAccount("cosmoshub-4");
-
-          console.log("🚀 ~ onClick={ ~ aaa:", aaa);
-        }}
-      >
-        adfadsfsdf
-      </button>
     </div>
   );
 };
