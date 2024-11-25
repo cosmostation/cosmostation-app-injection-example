@@ -16,6 +16,6 @@ export function base64ToHex(base64: string): string {
   }
 
   return Array.from(uint8Array)
-    .map((byte) => byte.toString(16).padStart(2, "0")) // 각 바이트를 2자리 16진수로 변환
+    .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
 }
