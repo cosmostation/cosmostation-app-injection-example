@@ -53,6 +53,7 @@ const App: React.FC = () => {
   );
 
   return (
+    // TODO 설치여부, ua에 따라 분기처리 필요.
     <div className={styles.container}>
       <h3>Connect Wallet With EIP-6963</h3>
 
@@ -69,7 +70,11 @@ const App: React.FC = () => {
               }`}
               onClick={() => setActiveType(connectType["eip-6963"])}
             >
-              <h3>use EIP-6963</h3>
+              <h3>
+                use
+                <br />
+                EIP-6963
+              </h3>
             </button>
             <button
               className={`${styles.connectTypeButton} ${
@@ -77,7 +82,11 @@ const App: React.FC = () => {
               }`}
               onClick={() => setActiveType(connectType["wagmi"])}
             >
-              <h3>use Wagmi</h3>
+              <h3>
+                use
+                <br />
+                Wagmi
+              </h3>
             </button>
           </div>
         </div>
@@ -98,7 +107,11 @@ const App: React.FC = () => {
               }`}
               onClick={() => setActiveType(connectType["vanilla-cosmos"])}
             >
-              <h3>use Vanilla</h3>
+              <h3>
+                use
+                <br />
+                Vanilla
+              </h3>
             </button>
             <button
               className={`${styles.connectTypeButton} ${
@@ -110,7 +123,11 @@ const App: React.FC = () => {
                 setActiveType(connectType["@cosmostation/wallets"])
               }
             >
-              <h3>use @cosmostation/wallets</h3>
+              <h3>
+                use
+                <br />
+                wallets pkg
+              </h3>
             </button>
           </div>
         </div>
