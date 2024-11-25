@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 
 import styles from "./index.module.scss";
 import { useEthereumWallets } from "../../../hooks/useEthereumWallets";
+import WalletButton from "../../UI/WalletButton";
 
 const VanillaEthereumConnect: React.FC = () => {
   const [selectedWallet, setSelectedWallet] = useState<EIP6963ProviderDetail>();
@@ -71,68 +72,107 @@ const VanillaEthereumConnect: React.FC = () => {
   }
 
   return (
-    <div className={styles.container}>
-      <h2 className={styles.title}>Connect ETH Wallets with Vanilla codes</h2>
-      <div className={styles.walletButtonContainer}>
-        {connectableWallets.length > 0 ? (
-          connectableWallets?.map((provider: EIP6963ProviderDetail) => (
-            <button
-              className={styles.walletLogoButton}
-              key={provider.info.uuid}
-              onClick={() => {
-                connectWallet(provider);
-              }}
-            >
-              <img src={provider.info.icon} alt={provider.info.name} />
-              <div>{provider.info.name}</div>
-            </button>
-          ))
-        ) : (
-          <div>No Announced Wallet Providers</div>
-        )}
+    <>
+      <h3>Connect Wallet With EIP-6963</h3>
+
+      <div className={styles.notice}>
+        <p>
+          This page is a sample dApp that allows users to transfer tokens to
+          their wallet. It was designed for developers building dApps with the{" "}
+          <b>Cosmostation App Wallet</b> or <b>Extension Wallet</b>.
+        </p>
+        <p>
+          <a
+            className={styles.link}
+            href="https://github.com/cosmostation/cosmostation-app-injection-example"
+            target="_blank"
+          >
+            Click here
+          </a>
+          &nbsp;to view the complete code.
+        </p>
       </div>
-      <h3>Current Connected Wallet</h3>
-      {isConnectingWallet ? (
-        <div>Connecting...</div>
-      ) : isConnectedWallet ? (
-        <div>
-          <div>
-            <img
-              src={selectedWallet!.info.icon}
-              alt={selectedWallet!.info.name}
-            />
-            <div>{selectedWallet!.info.name}</div>
-            <div>({userAccount})</div>
+
+      <div className={styles.container}>
+        <div className={styles.contentsContainer}>
+          <h3 className={styles.title}>Choose your Wallet</h3>
+
+          <div className={styles.walletButtonContainer}>
+            {connectableWallets.length > 0 ? (
+              connectableWallets?.map((provider: EIP6963ProviderDetail) => (
+                <WalletButton
+                  walletImage={provider.info.icon}
+                  walletName={provider.info.name}
+                  key={provider.info.uuid}
+                  onClick={() => {
+                    connectWallet(provider);
+                  }}
+                />
+              ))
+            ) : (
+              <div>No Announced Wallet Providers</div>
+            )}
           </div>
         </div>
-      ) : (
-        <div>Not Connected</div>
-      )}
 
-      <h3>Sign Message with Connected Wallet</h3>
-      <div>
-        <button
-          onClick={async () => {
-            const signature = await signMessageWithEVMWallet(
-              "Example `personal_sign` message"
-            );
-            setsignature(signature);
-          }}
-        >
-          Sign Message with with Vanilla code
-        </button>
+        <div className={styles.contentsContainer}>
+          <h3 className={styles.title}>Current Connected Wallet</h3>
+
+          <div className={styles.connectedWalletContainer}>
+            {isConnectingWallet ? (
+              <div>Connecting...</div>
+            ) : isConnectedWallet ? (
+              <div className={styles.contents}>
+                <div className={styles.connectedWallet}>
+                  <img
+                    className={styles.connectedWalletImage}
+                    src={selectedWallet!.info.icon}
+                    alt={selectedWallet!.info.name}
+                  />
+                  <div className={styles.walletName}>
+                    {selectedWallet!.info.name}
+                  </div>
+                </div>
+                <div className={styles.address}>{userAccount}</div>
+              </div>
+            ) : (
+              <div className={styles.contents}>
+                <h4>Not Connected</h4>
+              </div>
+            )}
+          </div>
+
+          <button
+            className={styles.baseButton}
+            onClick={() => {
+              setSelectedWallet(undefined);
+            }}
+          >
+            <h4>Disconnect</h4>
+          </button>
+        </div>
+
+        <div className={styles.contentsContainer}>
+          <h3>Sign Message</h3>
+          <div>
+            <div className={styles.address}>{signature || "No Signature"}</div>
+          </div>
+          <div>
+            <button
+              className={styles.baseButton}
+              onClick={async () => {
+                const signature = await signMessageWithEVMWallet(
+                  "Example `personal_sign` message"
+                );
+                setsignature(signature);
+              }}
+            >
+              Sign Message
+            </button>
+          </div>
+        </div>
       </div>
-      <div>
-        <h3>{signature || "No Signature"}</h3>
-      </div>
-      <button
-        onClick={() => {
-          setSelectedWallet(undefined);
-        }}
-      >
-        disconnect
-      </button>
-    </div>
+    </>
   );
 };
 

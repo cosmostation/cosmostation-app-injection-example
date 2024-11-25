@@ -6,7 +6,9 @@ export const eip6963ProviderStore = {
     function onAnnouncement(event: EIP6963AnnounceProviderEvent) {
       if (providers.map((p) => p.info.uuid).includes(event.detail.info.uuid))
         return;
-      providers = [...providers, event.detail];
+      providers = [...providers, event.detail].sort((item) =>
+        item.info.name === "Cosmostation Wallet" ? -1 : 1
+      );
       callback();
     }
     window.addEventListener("eip6963:announceProvider", onAnnouncement);
