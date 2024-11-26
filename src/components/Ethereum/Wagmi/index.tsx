@@ -28,11 +28,16 @@ const Wagmi: React.FC = () => {
   const [signature, setSignature] = useState("");
   const [isProcessingSignMessage, setIsProcessingSignMessage] = useState(false);
 
+  const resetWallet = () => {
+    setSignature("");
+  };
+
+  // Customizes the selected wallet connector's properties.
+  // If the selected connector is an injected wallet, it updates the name to "Browser Wallet"
+  // and sets a default icon. Otherwise, it retains the connector's original name and icon.
   const customedSelectedConnector = useMemo(() => {
     const isInjectedWallet = selectedConnector?.name === "Injected";
-
     const name = isInjectedWallet ? "Browser Wallet" : selectedConnector?.name;
-
     const icon = isInjectedWallet
       ? BrowserWalletImg
       : selectedConnector?.icon || "";
@@ -44,11 +49,12 @@ const Wagmi: React.FC = () => {
     };
   }, [selectedConnector]);
 
-  // 지갑 관련 api훅들은 아래의 docs에서 확인 가능
+  // Refer to the documentation for details on the related functions.
   // https://wagmi.sh/react/api/hooks
   const { signMessageAsync } = useSignMessage();
   const { switchChain } = useSwitchChain();
 
+  // Logic for automatic connection support in the Cosmostation mobile app.
   useEffect(() => {
     if (isMobile) {
       connectAsync({
@@ -57,6 +63,14 @@ const Wagmi: React.FC = () => {
     }
   }, [connectAsync, connectors, isMobile]);
 
+  if (!connectors) {
+    return (
+      <div className={styles.container}>
+        <div>No Wallets To Connect Wallet</div>;
+      </div>
+    );
+  }
+
   return (
     <>
       <div className={styles.container}>
@@ -64,41 +78,34 @@ const Wagmi: React.FC = () => {
           <h3 className={styles.title}>Choose your Wallet</h3>
 
           <div className={styles.walletButtonContainer}>
-            {connectors.length > 0 ? (
-              connectors?.map((connector) => {
-                const isInjectedWallet = connector.name === "Injected";
+            {connectors.map((connector) => {
+              const isInjectedWallet = connector.name === "Injected";
 
-                const name = isInjectedWallet
-                  ? "Browser Wallet"
-                  : connector.name;
+              const name = isInjectedWallet ? "Browser Wallet" : connector.name;
+              const image = isInjectedWallet
+                ? BrowserWalletImg
+                : connector.icon || "";
 
-                const image = isInjectedWallet
-                  ? BrowserWalletImg
-                  : connector.icon || "";
+              return (
+                <WalletButton
+                  walletImage={image}
+                  walletName={name}
+                  key={connector.uid}
+                  onClick={async () => {
+                    resetWallet();
 
-                return (
-                  <WalletButton
-                    walletImage={image}
-                    walletName={name}
-                    key={connector.uid}
-                    onClick={async () => {
-                      setSignature("");
-
-                      await connectAsync(
-                        { connector },
-                        {
-                          onError: (error) => {
-                            console.error("🚀 ~ onClick={ ~ error:", error);
-                          },
-                        }
-                      );
-                    }}
-                  />
-                );
-              })
-            ) : (
-              <div>No Announced Wallet Providers</div>
-            )}
+                    await connectAsync(
+                      { connector },
+                      {
+                        onError: (error) => {
+                          console.error("🚀 ~ onClick={ ~ error:", error);
+                        },
+                      }
+                    );
+                  }}
+                />
+              );
+            })}
           </div>
         </div>
 
@@ -156,6 +163,7 @@ const Wagmi: React.FC = () => {
                 try {
                   setIsProcessingSignMessage(true);
 
+                  // Initial setup requires calling eth_chainId and wallet_switchEthereumChain when using the Cosmostation mobile app.
                   if (isMobile) {
                     await switchChain({ chainId: 1 });
                   }

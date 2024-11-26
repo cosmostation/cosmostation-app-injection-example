@@ -48,6 +48,7 @@ const VanillaCosmosConnect: React.FC = () => {
     setsignature("");
   };
 
+  // Logic for automatic connection support in the Cosmostation mobile app.
   useEffect(() => {
     (async () => {
       if (isMobile) {
@@ -57,6 +58,14 @@ const VanillaCosmosConnect: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMobile]);
 
+  if (!cosmosWallets) {
+    return (
+      <div className={styles.container}>
+        <div>No Wallets To Connect Wallet</div>;
+      </div>
+    );
+  }
+
   return (
     <>
       <div className={styles.container}>
@@ -64,22 +73,18 @@ const VanillaCosmosConnect: React.FC = () => {
           <h3 className={styles.title}>Choose your Wallet</h3>
 
           <div className={styles.walletButtonContainer}>
-            {cosmosWallets.length > 0 ? (
-              cosmosWallets?.map((wallet) => (
-                <WalletButton
-                  walletImage={wallet.icon}
-                  walletName={wallet.name}
-                  key={wallet.id}
-                  onClick={async () => {
-                    resetWallet();
+            {cosmosWallets.map((wallet) => (
+              <WalletButton
+                walletImage={wallet.icon}
+                walletName={wallet.name}
+                key={wallet.id}
+                onClick={async () => {
+                  resetWallet();
 
-                    await handleWalletConnect(wallet.id, chain.chainId);
-                  }}
-                />
-              ))
-            ) : (
-              <div>No Announced Wallet Providers</div>
-            )}
+                  await handleWalletConnect(wallet.id, chain.chainId);
+                }}
+              />
+            ))}
           </div>
         </div>
 
@@ -188,6 +193,7 @@ const VanillaCosmosConnect: React.FC = () => {
                   if (!userAccount) {
                     throw new Error("No Account");
                   }
+
                   setIsFetchingBalance(true);
 
                   const response = await getBalance(
@@ -214,7 +220,7 @@ const VanillaCosmosConnect: React.FC = () => {
         </div>
 
         <div className={styles.contentsContainer}>
-          <h3>Call Send Sign</h3>
+          <h3>Call Send Token</h3>
           <div className={styles.contents}>
             <div className={styles.workBreak}>
               {isProcessingSendToken ? "Processing..." : txHash || "No TxHash"}

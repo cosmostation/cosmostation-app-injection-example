@@ -20,11 +20,11 @@ const useCosmosWalletsWithVanilla = () => {
       id: "cosmostation",
       name: "Cosmostation",
       icon: CosmostaionIcon,
+      // window.cosmostation?.providers?.keplr is a provider object
+      // tailored to the Keplr wallet's provider interface, provided by Cosmostation.
       // https://docs.cosmostation.io/extension/integration/cosmos/integrate-keplr
       provider: window.cosmostation?.providers?.keplr,
     },
-    // NOTE 모바일에서는 keplr도 뜨는데 우리는 window.keplr에도 인젝트 시켰기 때문에 나온다. 인젝트되는 provier객체는  window.cosmostation?.providers?.keplr와 동일한 객체임.
-    // NOTE 별도로 ui로 표시해줘도 좋을듯.
     {
       id: "keplr",
       name: "Keplr",
@@ -32,10 +32,11 @@ const useCosmosWalletsWithVanilla = () => {
       provider: window.keplr,
     },
   ]
-    // NOTE provider가 없는 경우는 연결 불가능한 지갑으로 판단
+    //  If the provider is missing, the wallet is considered unable to connect.
     .filter((wallet) => wallet.provider)
-    // NOTE 모바일에서는 cosmostation만 뜨도록 함.
-    // NOTE 모바일에서는 window.keplr에도 코스모스테이션의 프로바이더를 인젝트 시켰기 때문에 둘다 뜨게 됨.
+    //  Keplr also appears on mobile because we injected it into window.keplr.
+    // The injected provider object is the same as window.cosmostation?.providers?.keplr.
+    // Therefore, to remove the Keplr wallet connection button on mobile, the following filtering logic is added.
     .filter((wallet) => {
       if (isMobile) {
         return wallet.id === "cosmostation";

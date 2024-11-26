@@ -41,12 +41,16 @@ const VanillaEthereumConnect: React.FC = () => {
     }
   };
 
+  const resetWallet = () => {
+    setSignature("");
+  };
+
   const signMessage = async (msg: string) => {
     if (!selectedWallet) {
       throw new Error("No selected wallet");
     }
 
-    // TODO 앱에서 개발모드로 진입시 이게 무조건 필요함. 이거 없으면 앱에서는 작동안함.
+    // Initial setup requires calling eth_chainId and wallet_switchEthereumChain when using the Cosmostation mobile app.
     if (isMobile) {
       await selectedWallet.provider.request({
         method: "eth_chainId",
@@ -65,16 +69,16 @@ const VanillaEthereumConnect: React.FC = () => {
     return signature;
   };
 
+  // Logic for automatic connection support in the Cosmostation mobile app.
   useEffect(() => {
     if (isMobile) {
       connectWallet(connectableWallets[0]);
     }
   }, [connectableWallets, isMobile]);
 
-  if (!connectableWallets) {
+  if (connectableWallets.length < 1) {
     return (
       <div className={styles.container}>
-        <h2 className={styles.title}>Connect ETH Wallets with Vanilla codes</h2>
         <div>No Wallets To Connect Wallet</div>;
       </div>
     );
@@ -87,22 +91,18 @@ const VanillaEthereumConnect: React.FC = () => {
           <h3 className={styles.title}>Choose your Wallet</h3>
 
           <div className={styles.walletButtonContainer}>
-            {connectableWallets.length > 0 ? (
-              connectableWallets?.map((provider: EIP6963ProviderDetail) => (
-                <WalletButton
-                  walletImage={provider.info.icon}
-                  walletName={provider.info.name}
-                  key={provider.info.uuid}
-                  onClick={() => {
-                    setSignature("");
+            {connectableWallets.map((provider: EIP6963ProviderDetail) => (
+              <WalletButton
+                walletImage={provider.info.icon}
+                walletName={provider.info.name}
+                key={provider.info.uuid}
+                onClick={() => {
+                  resetWallet();
 
-                    connectWallet(provider);
-                  }}
-                />
-              ))
-            ) : (
-              <div>No Announced Wallet Providers</div>
-            )}
+                  connectWallet(provider);
+                }}
+              />
+            ))}
           </div>
         </div>
 

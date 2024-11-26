@@ -34,7 +34,6 @@ const CosmostationWalletsPkg: React.FC = () => {
   const [txHash, setTxHash] = useState("");
   const [balance, setBalance] = useState<Coin>();
 
-  // NOTE cosmJs로직
   const getOfflineSigner = useCallback(
     async (chainId: string) => {
       const signer: OfflineSigner = {
@@ -79,7 +78,7 @@ const CosmostationWalletsPkg: React.FC = () => {
             throw Error("signDirect Failed");
           }
 
-          const _account = await currentWallet.methods.getAccount(chainId);
+          const account = await currentWallet.methods.getAccount(chainId);
 
           const publicKeyFormatMapping = {
             secp256k1: "tendermint/PubKeySecp256k1",
@@ -87,8 +86,8 @@ const CosmostationWalletsPkg: React.FC = () => {
           };
 
           const pubKey = {
-            type: publicKeyFormatMapping[_account.public_key.type],
-            value: _account.public_key.value,
+            type: publicKeyFormatMapping[account.public_key.type],
+            value: account.public_key.value,
           };
 
           return {
@@ -120,13 +119,13 @@ const CosmostationWalletsPkg: React.FC = () => {
         throw new Error("No RPC URL");
       }
 
-      const _clients = await SigningStargateClient.connectWithSigner(
+      const client = await SigningStargateClient.connectWithSigner(
         rpcURL,
         offlineSigner,
         { gasPrice: GasPrice.fromString(`0.025${chain.denom}`) }
       );
 
-      return _clients;
+      return client;
     },
     [chain.denom, getOfflineSigner]
   );
@@ -137,8 +136,8 @@ const CosmostationWalletsPkg: React.FC = () => {
       address: string,
       denom: string
     ): Promise<Coin | null> => {
-      const _client = await getCosmJsClient(chainId);
-      const balance = await _client.getBalance(address, denom);
+      const client = await getCosmJsClient(chainId);
+      const balance = await client.getBalance(address, denom);
 
       return balance || null;
     },
@@ -154,8 +153,8 @@ const CosmostationWalletsPkg: React.FC = () => {
       fee: StdFee | "auto" | number,
       memo?: string
     ) => {
-      const _client = await getCosmJsClient(chainId);
-      const response = await _client.sendTokens(from, to, amount, fee, memo);
+      const client = await getCosmJsClient(chainId);
+      const response = await client.sendTokens(from, to, amount, fee, memo);
 
       return response;
     },
@@ -163,16 +162,25 @@ const CosmostationWalletsPkg: React.FC = () => {
   );
 
   useEffect(() => {
-    // NOTE 모바일일 경우 window.keplr에도 cosmostation의 프로바이더를 인젝트해서 사용중이기 때문에 같은 프로바이더가 중복리스팅되지 않도록 작업.
+    //  On mobile, the Cosmostation provider is injected into `window.keplr`.
+    // To avoid duplicate listings, adjustments are made to prevent the same provider from appearing twice.
     if (isChrome || isFirefox) {
       registerKeplrWallet();
     }
 
-    // NOTE 모바일일 경우 바로 연결되도록 작업.
+    // Logic for automatic connection support in the Cosmostation mobile app.
     if (isMobile) {
       selectWallet(cosmosWallets[0].id);
     }
   }, [cosmosWallets, isChrome, isFirefox, isMobile, selectWallet]);
+
+  if (!cosmosWallets) {
+    return (
+      <div className={styles.container}>
+        <div>No Wallets To Connect Wallet</div>;
+      </div>
+    );
+  }
 
   return (
     <>
@@ -181,28 +189,24 @@ const CosmostationWalletsPkg: React.FC = () => {
           <h3 className={styles.title}>Choose your Wallet</h3>
 
           <div className={styles.walletButtonContainer}>
-            {cosmosWallets.length > 0 ? (
-              cosmosWallets?.map((wallet) => (
-                <WalletButton
-                  walletImage={wallet.logo}
-                  walletName={wallet.name}
-                  key={wallet.id}
-                  onClick={async () => {
-                    try {
-                      setIsConnectingWallet(true);
+            {cosmosWallets.map((wallet) => (
+              <WalletButton
+                walletImage={wallet.logo}
+                walletName={wallet.name}
+                key={wallet.id}
+                onClick={async () => {
+                  try {
+                    setIsConnectingWallet(true);
 
-                      selectWallet(wallet.id);
-                    } catch (error) {
-                      console.log("🚀 ~ onClick={ ~ error:", error);
-                    } finally {
-                      setIsConnectingWallet(false);
-                    }
-                  }}
-                />
-              ))
-            ) : (
-              <div>No Announced Wallet Providers</div>
-            )}
+                    selectWallet(wallet.id);
+                  } catch (error) {
+                    console.log("🚀 ~ onClick={ ~ error:", error);
+                  } finally {
+                    setIsConnectingWallet(false);
+                  }
+                }}
+              />
+            ))}
           </div>
         </div>
 
@@ -280,6 +284,7 @@ const CosmostationWalletsPkg: React.FC = () => {
                     message,
                     account.account.address
                   );
+
                   if (!signature) {
                     throw new Error("No Signature");
                   }
@@ -320,7 +325,7 @@ const CosmostationWalletsPkg: React.FC = () => {
                   const response = await getBalance(
                     chain.chainId,
                     account.account.address,
-                    "uatom"
+                    chain.denom
                   );
 
                   if (!response) {
@@ -341,7 +346,7 @@ const CosmostationWalletsPkg: React.FC = () => {
         </div>
 
         <div className={styles.contentsContainer}>
-          <h3>Call Send Sign</h3>
+          <h3>Call Send Token</h3>
           <div>
             <div className={styles.contents}>
               <div className={styles.workBreak}>
@@ -367,11 +372,10 @@ const CosmostationWalletsPkg: React.FC = () => {
                     chain.chainId,
                     account.account.address,
                     account.account.address,
-                    [{ denom: "uatom", amount: "1" }],
+                    [{ denom: chain.denom, amount: "1" }],
                     "auto",
                     "Memo of sendTokens"
                   );
-                  console.log(response.transactionHash);
 
                   setTxHash(response.transactionHash);
                 } catch (error) {
