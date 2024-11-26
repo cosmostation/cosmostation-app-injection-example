@@ -153,7 +153,7 @@ const VanillaCosmosConnect: React.FC = () => {
                   const signature = await signMessage(
                     chain.chainId,
                     userAccount.bech32Address,
-                    "Example `personal_sign` message"
+                    "Example `signMessage` message"
                   );
 
                   if (!signature) {
