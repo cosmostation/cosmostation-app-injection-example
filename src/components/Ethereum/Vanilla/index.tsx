@@ -41,7 +41,7 @@ const VanillaEthereumConnect: React.FC = () => {
     }
   };
 
-  const signMessageWithEVMWallet = async (msg: string) => {
+  const signMessage = async (msg: string) => {
     if (!selectedWallet) {
       throw new Error("No selected wallet");
     }
@@ -161,7 +161,7 @@ const VanillaEthereumConnect: React.FC = () => {
                 try {
                   setIsProcessingSignMessage(true);
 
-                  const signature = await signMessageWithEVMWallet(
+                  const signature = await signMessage(
                     "Example `personal_sign` message"
                   );
 
