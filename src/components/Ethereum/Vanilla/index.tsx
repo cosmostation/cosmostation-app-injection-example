@@ -1,10 +1,13 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import styles from "./index.module.scss";
 import { useEthereumWallets } from "../../../hooks/useEthereumWallets";
 import WalletButton from "../../UI/WalletButton";
+import useUserAgent from "../../../hooks/useUserAgent";
 
 const VanillaEthereumConnect: React.FC = () => {
+  const { isMobile } = useUserAgent();
+
   const [selectedWallet, setSelectedWallet] = useState<EIP6963ProviderDetail>();
   const [userAccount, setUserAccount] = useState<string>("");
   const connectableWallets = useEthereumWallets();
@@ -38,23 +41,22 @@ const VanillaEthereumConnect: React.FC = () => {
     }
   };
 
-  // FIXME Cancel이라는 에러 메시지와 함꼐 작동 안됨.
   const signMessageWithEVMWallet = async (msg: string) => {
     if (!selectedWallet) {
-      alert("No selected wallet");
       throw new Error("No selected wallet");
     }
 
     // TODO 앱에서 개발모드로 진입시 이게 무조건 필요함. 이거 없으면 앱에서는 작동안함.
-    await selectedWallet.provider.request({
-      method: "eth_chainId",
-    });
+    if (isMobile) {
+      await selectedWallet.provider.request({
+        method: "eth_chainId",
+      });
 
-    // TODO 앱에서 개발모드로 진입시 이게 무조건 필요함. 이거 없으면 앱에서는 작동안함.
-    await selectedWallet.provider.request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: "0x1" }],
-    });
+      await selectedWallet.provider.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0x1" }],
+      });
+    }
 
     const signature = (await selectedWallet.provider
       .request({ method: "personal_sign", params: [msg, userAccount] })
@@ -62,6 +64,12 @@ const VanillaEthereumConnect: React.FC = () => {
 
     return signature;
   };
+
+  useEffect(() => {
+    if (isMobile) {
+      connectWallet(connectableWallets[0]);
+    }
+  }, [connectableWallets, isMobile]);
 
   if (!connectableWallets) {
     return (
@@ -74,24 +82,6 @@ const VanillaEthereumConnect: React.FC = () => {
 
   return (
     <>
-      <div className={styles.notice}>
-        <p>
-          This page is a sample dApp that allows users to transfer tokens to
-          their wallet. It was designed for developers building dApps with the{" "}
-          <b>Cosmostation App Wallet</b> or <b>Extension Wallet</b>.
-        </p>
-        <p>
-          <a
-            className={styles.link}
-            href="https://github.com/cosmostation/cosmostation-app-injection-example"
-            target="_blank"
-          >
-            Click here
-          </a>
-          &nbsp;to view the complete code.
-        </p>
-      </div>
-
       <div className={styles.container}>
         <div className={styles.contentsContainer}>
           <h3 className={styles.title}>Choose your Wallet</h3>

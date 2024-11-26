@@ -1,9 +1,16 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import styles from "./index.module.scss";
-import { useAccount, useConnect, useDisconnect, useSignMessage } from "wagmi";
+import {
+  useAccount,
+  useConnect,
+  useDisconnect,
+  useSignMessage,
+  useSwitchChain,
+} from "wagmi";
 import BrowserWalletImg from "../../../assets/images/wallet.png";
 import WalletButton from "../../UI/WalletButton";
+import useUserAgent from "../../../hooks/useUserAgent";
 
 const Wagmi: React.FC = () => {
   const {
@@ -13,15 +20,15 @@ const Wagmi: React.FC = () => {
     isConnecting,
     isDisconnected,
   } = useAccount();
+  const { isMobile } = useUserAgent();
 
   const { connectors, connectAsync } = useConnect();
-
   const { disconnect } = useDisconnect();
 
   const [signature, setSignature] = useState("");
   const [isProcessingSignMessage, setIsProcessingSignMessage] = useState(false);
 
-  const selectedConnector2 = useMemo(() => {
+  const customedSelectedConnector = useMemo(() => {
     const isInjectedWallet = selectedConnector?.name === "Injected";
 
     const name = isInjectedWallet ? "Browser Wallet" : selectedConnector?.name;
@@ -40,26 +47,18 @@ const Wagmi: React.FC = () => {
   // 지갑 관련 api훅들은 아래의 docs에서 확인 가능
   // https://wagmi.sh/react/api/hooks
   const { signMessageAsync } = useSignMessage();
+  const { switchChain } = useSwitchChain();
+
+  useEffect(() => {
+    if (isMobile) {
+      connectAsync({
+        connector: connectors[0],
+      });
+    }
+  }, [connectAsync, connectors, isMobile]);
 
   return (
     <>
-      <div className={styles.notice}>
-        <p>
-          This page is a sample dApp that allows users to transfer tokens to
-          their wallet. It was designed for developers building dApps with the{" "}
-          <b>Cosmostation App Wallet</b> or <b>Extension Wallet</b>.
-        </p>
-        <p>
-          <a
-            className={styles.link}
-            href="https://github.com/cosmostation/cosmostation-app-injection-example"
-            target="_blank"
-          >
-            Click here
-          </a>
-          &nbsp;to view the complete code.
-        </p>
-      </div>
       <div className={styles.container}>
         <div className={styles.contentsContainer}>
           <h3 className={styles.title}>Choose your Wallet</h3>
@@ -114,10 +113,10 @@ const Wagmi: React.FC = () => {
                 <div className={styles.connectedWallet}>
                   <img
                     className={styles.connectedWalletImage}
-                    src={selectedConnector2?.icon}
+                    src={customedSelectedConnector?.icon}
                   />
                   <div className={styles.walletName}>
-                    {selectedConnector2?.name}
+                    {customedSelectedConnector?.name}
                   </div>
                 </div>
                 <div className={styles.workBreak}>{address}</div>
@@ -156,6 +155,10 @@ const Wagmi: React.FC = () => {
               onClick={async () => {
                 try {
                   setIsProcessingSignMessage(true);
+
+                  if (isMobile) {
+                    await switchChain({ chainId: 1 });
+                  }
 
                   const signature = await signMessageAsync({
                     message: "Example `personal_sign` message",

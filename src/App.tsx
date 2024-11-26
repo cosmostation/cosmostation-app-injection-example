@@ -14,7 +14,6 @@ import { CosmosProvider } from "@cosmostation/use-wallets";
 import EthereumImage from "./assets/images/ethereum.png";
 import CosmosImage from "./assets/images/cosmos.png";
 
-// NOTE 로컬호스트로 접근했을때, 웹,앱 정상 동작, 로컬네트워크로 접근했을때, 웹 몇몇 지갑 리스팅X, 앱또한 마찬가지
 const queryClient = new QueryClient();
 
 const connectType = {
@@ -27,13 +26,12 @@ const connectType = {
 const title = {
   "eip-6963": "Connect Ethereum Wallet With EIP-6963",
   wagmi: "Connect Ethereum Wallet With Wagmi",
-  "vanilla-cosmos": "Connect Cosmos Wallets with Vanilla",
-  "@cosmostation/wallets": "Connect Cosmos Wallets with @cosmostation/wallets",
+  "vanilla-cosmos": "Connect Cosmos Wallet with Vanilla",
+  "@cosmostation/wallets": "Connect Cosmos Wallet with @cosmostation/wallets",
 };
 
 type ConnectType = (typeof connectType)[keyof typeof connectType];
 
-// TODO 디자인 작업
 const App: React.FC = () => {
   const { isInstalled, downloadUrl } = useCosmostation();
   const { isMobile, isAndroid, isiOS } = useUserAgent();
@@ -59,10 +57,56 @@ const App: React.FC = () => {
     [downloadUrl, isAndroid, isiOS]
   );
 
+  if (!isInstalled && !downloadUrl) {
+    return (
+      <div className={styles.warning}>
+        <p>This client is not supported.</p>
+        <p>
+          Please access it using <i>Android / iOS</i> mobile devices or&nbsp;
+          <i>Chrome / Firefox</i> on desktop.
+        </p>
+      </div>
+    );
+  }
+
+  if (!isInstalled && !!downloadUrl && isMobile) {
+    return (
+      <div className={styles.warning}>
+        <p>
+          This page is accessible via the Cosmostation App Wallet or desktop web
+          page.
+        </p>
+        <p>
+          <a
+            href="#none"
+            onClick={() => onLaunchApp(window.location.href)}
+            className={styles.link}
+          >
+            Click here
+          </a>
+          &nbsp;to launch the dApp within the Cosmostation App Wallet.
+        </p>
+      </div>
+    );
+  }
+
+  if (!isInstalled && !!downloadUrl && !isMobile) {
+    return (
+      <div className={styles.warning}>
+        <p>The Cosmostation Wallet Extension is missing.</p>
+        <p>
+          <a href={downloadUrl} className={styles.link} target="_blank">
+            Click here
+          </a>
+          &nbsp;to install, then refresh the page to continue.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    // TODO 설치여부, ua에 따라 분기처리 필요.
     <div className={styles.container}>
-      <h1>{title[activeType]}</h1>
+      <h1 className={styles.header}>{title[activeType]}</h1>
 
       <div className={styles.connectTypeButtonWrapper}>
         <div className={styles.chainCategory}>
@@ -155,66 +199,23 @@ const App: React.FC = () => {
         </CosmosProvider>
       )}
 
-      {isInstalled && (
-        <>
-          <h2 className={styles.title}>Cosmos Wallets</h2>
-          <div className={styles.notice}>
-            <p>
-              This page is a sample dApp that allows users to transfer tokens to
-              their wallet. It was designed for developers building dApps with
-              the <b>Cosmostation App Wallet</b> or <b>Extension Wallet</b>.
-            </p>
-            <p>
-              <a
-                className={styles.link}
-                href="https://github.com/cosmostation/cosmostation-app-injection-example"
-                target="_blank"
-              >
-                Click here
-              </a>
-              &nbsp;to view the complete code.
-            </p>
-          </div>
-        </>
-      )}
-      {!isInstalled && !downloadUrl && (
-        <div className={styles.warning}>
-          <p>This client is not supported.</p>
-          <p>
-            Please access it using <i>Android / iOS</i> mobile devices or&nbsp;
-            <i>Chrome / Firefox</i> on desktop.
-          </p>
-        </div>
-      )}
-      {!isInstalled && !!downloadUrl && isMobile && (
-        <div className={styles.warning}>
-          <p>
-            This page is accessible via the Cosmostation App Wallet or desktop
-            web page.
-          </p>
-          <p>
-            <a
-              href="#none"
-              onClick={() => onLaunchApp(window.location.href)}
-              className={styles.link}
-            >
-              Click here
-            </a>
-            &nbsp;to launch the dApp within the Cosmostation App Wallet.
-          </p>
-        </div>
-      )}
-      {!isInstalled && !!downloadUrl && !isMobile && (
-        <div className={styles.warning}>
-          <p>The Cosmostation Wallet Extension is missing.</p>
-          <p>
-            <a href={downloadUrl} className={styles.link} target="_blank">
-              Click here
-            </a>
-            &nbsp;to install, then refresh the page to continue.
-          </p>
-        </div>
-      )}
+      <div className={styles.notice}>
+        <p>
+          This page is a sample dApp that allows users to transfer tokens to
+          their wallet. It was designed for developers building dApps with the{" "}
+          <b>Cosmostation App Wallet</b> or <b>Extension Wallet</b>.
+        </p>
+        <p>
+          <a
+            className={styles.link}
+            href="https://github.com/cosmostation/cosmostation-app-injection-example"
+            target="_blank"
+          >
+            Click here
+          </a>
+          &nbsp;to view the complete code.
+        </p>
+      </div>
       {/* <Logger /> */}
     </div>
   );

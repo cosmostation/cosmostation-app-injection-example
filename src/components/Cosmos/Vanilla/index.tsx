@@ -59,24 +59,6 @@ const VanillaCosmosConnect: React.FC = () => {
 
   return (
     <>
-      <div className={styles.notice}>
-        <p>
-          This page is a sample dApp that allows users to transfer tokens to
-          their wallet. It was designed for developers building dApps with the{" "}
-          <b>Cosmostation App Wallet</b> or <b>Extension Wallet</b>.
-        </p>
-        <p>
-          <a
-            className={styles.link}
-            href="https://github.com/cosmostation/cosmostation-app-injection-example"
-            target="_blank"
-          >
-            Click here
-          </a>
-          &nbsp;to view the complete code.
-        </p>
-      </div>
-
       <div className={styles.container}>
         <div className={styles.contentsContainer}>
           <h3 className={styles.title}>Choose your Wallet</h3>

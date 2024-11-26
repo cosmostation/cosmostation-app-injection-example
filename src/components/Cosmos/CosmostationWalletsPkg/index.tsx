@@ -16,8 +16,6 @@ import WalletButton from "../../UI/WalletButton";
 const CosmostationWalletsPkg: React.FC = () => {
   const { isMobile, isChrome, isFirefox } = useUserAgent();
 
-  console.log("🚀 ~ isMobile:", isMobile);
-
   const chain = chains[0];
 
   const { cosmosWallets, currentWallet, selectWallet, closeWallet } =
@@ -166,8 +164,6 @@ const CosmostationWalletsPkg: React.FC = () => {
 
   useEffect(() => {
     // NOTE 모바일일 경우 window.keplr에도 cosmostation의 프로바이더를 인젝트해서 사용중이기 때문에 같은 프로바이더가 중복리스팅되지 않도록 작업.
-
-    // FIXME 이거 바로 true가 뜨는게 아니라 시간차로 true로 바뀌어서 수정이 필요함.
     if (isChrome || isFirefox) {
       registerKeplrWallet();
     }
@@ -178,27 +174,8 @@ const CosmostationWalletsPkg: React.FC = () => {
     }
   }, [cosmosWallets, isChrome, isFirefox, isMobile, selectWallet]);
 
-  // TODO 모바일인 경우에는 useEffect로 바로 연결되도록 작업.
-
   return (
     <>
-      <div className={styles.notice}>
-        <p>
-          This page is a sample dApp that allows users to transfer tokens to
-          their wallet. It was designed for developers building dApps with the{" "}
-          <b>Cosmostation App Wallet</b> or <b>Extension Wallet</b>.
-        </p>
-        <p>
-          <a
-            className={styles.link}
-            href="https://github.com/cosmostation/cosmostation-app-injection-example"
-            target="_blank"
-          >
-            Click here
-          </a>
-          &nbsp;to view the complete code.
-        </p>
-      </div>
       <div className={styles.container}>
         <div className={styles.contentsContainer}>
           <h3 className={styles.title}>Choose your Wallet</h3>
