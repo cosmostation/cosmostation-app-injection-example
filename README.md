@@ -9,6 +9,14 @@ By unifying the injection script interface, developers can seamlessly integrate 
 
 ## Run example page
 
+```bash
+npm install
+
+npm run dev
+```
+
+## Run example page with ngrok
+
 Get the ngrok token from <https://dashboard.ngrok.com/get-started/your-authtoken>
 
 ```shell
@@ -20,12 +28,6 @@ ngrok http http://localhost:${PORT}
 ```
 
 <https://ngrok.com/docs/getting-started/>
-
-```bash
-# Using yarn package manager
-npm install
-npm run dev
-```
 
 ## Flow Overview
 
