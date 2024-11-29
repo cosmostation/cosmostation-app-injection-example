@@ -4,6 +4,9 @@ interface ICosmostation {
     on: (eventName: string, eventHandler: (event?: unknown) => void) => unknown;
     off: (handler: unknown) => void;
   };
+  providers?: {
+    keplr: Keplr;
+  };
 }
 
 interface ICosmosRequestAccount {

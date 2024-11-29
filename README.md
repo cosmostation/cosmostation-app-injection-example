@@ -10,10 +10,24 @@ By unifying the injection script interface, developers can seamlessly integrate 
 ## Run example page
 
 ```bash
-# Using yarn package manager
 npm install
+
 npm run dev
 ```
+
+## Run example page with ngrok
+
+Get the ngrok token from <https://dashboard.ngrok.com/get-started/your-authtoken>
+
+```shell
+brew install ngrok
+
+ngrok config add-authtoken <TOKEN>
+
+ngrok http http://localhost:${PORT}
+```
+
+<https://ngrok.com/docs/getting-started/>
 
 ## Flow Overview
 

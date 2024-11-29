@@ -14,10 +14,16 @@
   "dependencies": {
     "@cosmjs/proto-signing": "^0.32.4",
     "@cosmjs/stargate": "^0.32.4",
+    "@cosmostation/use-wallets": "^2.0.6",
+    "@cosmostation/wallets": "^2.0.8",
+    "@keplr-wallet/types": "^0.12.156",
+    "@tanstack/react-query": "^5.60.5",
     "cosmjs-types": "^0.9.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "ua-parser-js": "^1.0.39"
+    "ua-parser-js": "^1.0.39",
+    "viem": "^2.21.48",
+    "wagmi": "^2.12.33"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
