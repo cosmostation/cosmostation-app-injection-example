@@ -1,13 +1,33 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import useUserAgent from "./useUserAgent";
 
 const useCosmostation = () => {
+  const [provider, setProvider] = useState<ICosmostation | null>(null);
   const { isMobile, isAndroid, isiOS, isChrome, isFirefox } = useUserAgent();
 
-  const provider = useMemo(() => {
-    return window.cosmostation;
+  useEffect(() => {
+    let originProvider = window.cosmostation;
+
+    setProvider(originProvider || null);
+
+    Object.defineProperty(window, "cosmostation", {
+      get() {
+        return originProvider;
+      },
+      set(newProvider) {
+        setProvider(newProvider);
+        originProvider = newProvider;
+      },
+    });
+
+    return () => {
+      Object.defineProperty(window, "cosmostation", {
+        value: originProvider,
+        writable: true,
+      });
+    };
   }, []);
 
   const cosmos = useMemo(() => {

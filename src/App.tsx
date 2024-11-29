@@ -1,18 +1,18 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { useCallback, useState } from "react";
 
+import CosmosImage from "./assets/images/cosmos.png";
+import { CosmosProvider } from "@cosmostation/use-wallets";
+import CosmostationWalletsPkg from "./components/Cosmos/CosmostationWalletsPkg";
+import EthereumImage from "./assets/images/ethereum.png";
+import VanillaCosmosConnect from "./components/Cosmos/Vanilla";
+import VanillaEthereumConnect from "./components/Ethereum/Vanilla";
+import Wagmi from "./components/Ethereum/Wagmi";
+import { WagmiProvider } from "wagmi";
+import { config } from "./wagmi/config";
 import styles from "./App.module.scss";
 import useCosmostation from "./hooks/useCosmostation";
 import useUserAgent from "./hooks/useUserAgent";
-import VanillaEthereumConnect from "./components/Ethereum/Vanilla";
-import Wagmi from "./components/Ethereum/Wagmi";
-import VanillaCosmosConnect from "./components/Cosmos/Vanilla";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { config } from "./wagmi/config";
-import { WagmiProvider } from "wagmi";
-import CosmostationWalletsPkg from "./components/Cosmos/CosmostationWalletsPkg";
-import { CosmosProvider } from "@cosmostation/use-wallets";
-import EthereumImage from "./assets/images/ethereum.png";
-import CosmosImage from "./assets/images/cosmos.png";
 
 const queryClient = new QueryClient();
 
