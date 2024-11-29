@@ -1,4 +1,4 @@
-export function convertPubKeyToHex(pubKey?: Uint8Array<ArrayBufferLike>) {
+export function convertPubKeyToHex(pubKey?: Uint8Array) {
   if (!pubKey) {
     return "";
   }
