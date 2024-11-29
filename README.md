@@ -15,20 +15,6 @@ npm install
 npm run dev
 ```
 
-## Run example page with ngrok
-
-Get the ngrok token from <https://dashboard.ngrok.com/get-started/your-authtoken>
-
-```shell
-brew install ngrok
-
-ngrok config add-authtoken <TOKEN>
-
-ngrok http http://localhost:${PORT}
-```
-
-<https://ngrok.com/docs/getting-started/>
-
 ## Flow Overview
 
 1. When the wallet is either installed or the page is loaded via the Cosmostation wallet (mobile or extension), cosmostation object will present as a window variable of global. This object allows you to execute the injected Script.
