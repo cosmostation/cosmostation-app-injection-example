@@ -44,15 +44,15 @@ const App: React.FC = () => {
     (url: string) => {
       if (isiOS) {
         window.location.href = `cosmostation://dapp?url=${url}`;
-
-        setTimeout(() => {
-          if (downloadUrl) {
-            window.location.href = downloadUrl;
-          }
-        }, 3000);
       } else if (isAndroid) {
         window.location.href = `cosmostation://dapp?${url}`;
       }
+      
+      setTimeout(() => {
+        if (downloadUrl) {
+          window.location.href = downloadUrl;
+        }
+      }, 3000)
     },
     [downloadUrl, isAndroid, isiOS]
   );
