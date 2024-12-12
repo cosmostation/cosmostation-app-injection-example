@@ -47,16 +47,17 @@ const App: React.FC = () => {
       } else if (isAndroid) {
         window.location.href = `cosmostation://dapp?${url}`;
       }
-      
+
       setTimeout(() => {
         if (downloadUrl) {
           window.location.href = downloadUrl;
         }
-      }, 3000)
+      }, 3000);
     },
     [downloadUrl, isAndroid, isiOS]
   );
 
+  // This UI is displayed when accessing from a platform not supported by Cosmostation.
   if (!isInstalled && !downloadUrl) {
     return (
       <div className={styles.warning}>
@@ -69,6 +70,8 @@ const App: React.FC = () => {
     );
   }
 
+  // Deep Link Redirect Page
+  // This UI is displayed when accessing from a supported mobile platform by Cosmostation using a mobile browser app instead of the in-app webview(ex. Ecosystem Page in the Cosmostation App).
   if (!isInstalled && !!downloadUrl && isMobile) {
     return (
       <div className={styles.warning}>
@@ -90,6 +93,7 @@ const App: React.FC = () => {
     );
   }
 
+  //  This UI is displayed when injection fails due to an issue while accessing via Chrome or Firefox browsers.
   if (!isInstalled && !!downloadUrl && !isMobile) {
     return (
       <div className={styles.warning}>
@@ -104,6 +108,7 @@ const App: React.FC = () => {
     );
   }
 
+  // This UI is displayed when accessing from a platform supported by Cosmostation (Android Webview, iOS Webview, Desktop(Chrome, Firefox)) and the wallet connection is available.
   return (
     <div className={styles.container}>
       <h1 className={styles.header}>{title[activeType]}</h1>
